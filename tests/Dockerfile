@@ -6,7 +6,9 @@ ARG PLUGIN_NAME
 RUN apt-get update
 # wget is required for downloading nvim
 # git is required by Lazy
-RUN apt-get install -y wget git
+# asciinema is used for recording
+# inetutils-ping is used for testing with ping
+RUN apt-get install -y wget git asciinema inetutils-ping
 
 WORKDIR /work
 RUN wget https://github.com/neovim/neovim/releases/download/$NVIM_VERSION/nvim-linux64.tar.gz
