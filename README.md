@@ -48,4 +48,4 @@ The most important thing I need from :term to use it more is to allow setting th
 - :Shell creates a new scratch buffer, instead of using the current buffer
 
 ### Differences with the :! command:
--  :! opens a special buffer, you cannot move the cursor around inside it or do anything that you can do in normal buffers like yanking a line or gf or gF. All of that is possible with :Shell. 
+-  :! opens a special buffer, you cannot move the cursor around inside it or do anything that you can do in normal buffers like yanking a line or gf or gF. The :! window is closed when you press any key. But :Shell buffers let you do those things.
