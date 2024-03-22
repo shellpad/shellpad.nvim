@@ -31,10 +31,11 @@ require('lazy').setup({
 I wrote this because while the :term and :r! commands are quite nice, I found myself working in a slightly different way.
 
 ### Differences with the :term command:
-- Lines are not wrapped
-- It is a normal buffer, no special terminal mode
-- No pty, hence no colors or interactive programs
-- Process is stopped when buffer is closed
+- :Shell does not wrap lines
+- :Shell uses a normal buffer, with no special terminal mode
+- :Shell does not provide colors or interactivity because pty is disabled. This is to make sure lines are not wrapped. 
+- :Shell process is stopped when the buffer window is closed
+- :term and jobstart have a job where the process output is truncated (see https://github.com/neovim/neovim/issues/26543). :Shell provides a workaround by simply sleeping for 0.5s. This is good enough for most usecases until the bug is resolved unpstream. 
 
 ### Differences with the :r! command:
 - You can see the live output
