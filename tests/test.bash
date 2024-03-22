@@ -6,6 +6,6 @@ set -x
 nvim --version
 nvim \
   +'set nowrap' \
-  +'Shell ls -lash' \
+  +'Shell find /work/src | grep -vw git' \
   +vs \
   +'Shell --no-follow ps aux --forest'
