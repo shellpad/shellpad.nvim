@@ -28,7 +28,7 @@ require('lazy').setup({
 ```
 
 ## Motivation
-I wrote this because while the :term nor :r! commands are quite nice, I found myself working in a slightly different way.
+I wrote this because while the :term and :r! commands are quite nice, I found myself working in a slightly different way.
 
 ### Differences with the :term command:
 - Lines are not wrapped
