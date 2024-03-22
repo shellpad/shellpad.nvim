@@ -1,6 +1,6 @@
 # shell.nvim
 
-Adds :Shell command to run a non-interactive shell command in a temporary buffer.
+Adds the :Shell command for running a non-interactive shell command in a temporary buffer.
 
 ## Usage
 ```
