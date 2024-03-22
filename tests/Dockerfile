@@ -12,8 +12,9 @@ RUN wget https://github.com/neovim/neovim/releases/download/$NVIM_VERSION/nvim-l
 RUN tar xvzf nvim-linux64.tar.gz
 ENV PATH="/work/nvim-linux64/bin:${PATH}"
 
-COPY test.bash /work/test.bash
-COPY init.lua /root/.config/nvim/init.lua
+COPY . /work/src/nvim-plugins/shell.nvim
+COPY tests/test.bash /work/test.bash
+COPY tests/init.lua /root/.config/nvim/init.lua
 
 # Run once to install Lazy and the plugin
 RUN nvim --headless +'qall'

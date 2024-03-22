@@ -21,5 +21,6 @@ require("lazy").setup({
   {
     "siadat/shell.nvim",
     opts = {},
+    dev = true,
   },
-})
+}, { dev = { path = '/work/src/nvim-plugins' } })
