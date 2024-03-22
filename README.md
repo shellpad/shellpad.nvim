@@ -2,7 +2,10 @@
 
 Adds the :Shell command for running a non-interactive shell command (no pty) in a temporary buffer.
 
+Using :Shell to run commands:
 [![asciicast](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf.svg)](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf)
+
+Using :Shell to run a compile command and jump to the line with error:
 [![asciicast](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt.svg)](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt)
 
 ## Usage
