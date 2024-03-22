@@ -31,7 +31,7 @@ require('lazy').setup({
 I wrote this because while the :term and :r! commands are quite nice, I found myself working in a slightly different way.
 
 ### Differences with the :term command:
-- :term has colors and gets user input. :Shell has no pty hence no colors and is only useful for non-interactive commands. Pty is disabled to make sure lines are not wrapped. 
+- :term has colors and gets user input. :Shell has no pty hence no colors and is only useful for non-interactive commands. (Pty is disabled to make sure lines are not wrapped as mentioned in the next item)
 - :Shell does not wrap lines. The output of :term is wrapped and difficult to work with (see https://github.com/neovim/neovim/issues/2514)
 - :Shell uses a normal buffer, with no special terminal mode. The :term buffers have a special terminal mode. With :term, if you enter the Insert mode on a completed process, and press any key, the whole buffer is closed and deleted. In :Shell, you can enter and leave the Insert mode like any other buffer. 
 - By default, leaving insert mode from a :term buffer is done via thr special key sequence ctrl-\ ctrl-n. In :Shell, you just press the escape key, like any other buffer.
