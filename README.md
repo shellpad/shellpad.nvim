@@ -35,8 +35,8 @@ I wrote this because while the :term and :r! commands are quite nice, I found my
 - :Shell does not wrap lines. The output of :term is wrapped and difficult to work with (see https://github.com/neovim/neovim/issues/2514)
 - :Shell uses a normal buffer, with no special terminal mode. The :term buffers have a special terminal mode. With :term, if you enter the Insert mode on a completed process, and press any key, the whole buffer is closed and deleted. In :Shell, you can enter and leave the Insert mode like any other buffer. 
 - By default, leaving insert mode from a :term buffer is done via thr special key sequence ctrl-\ ctrl-n. In :Shell, you just press the escape key, like any other buffer.
-- :Shell process is stopped when the buffer window is closed
-- :term and jobstart have a job where the process output is truncated (see https://github.com/neovim/neovim/issues/26543). :Shell provides a workaround by simply sleeping for 0.5s. This is good enough for most usecases until the bug is resolved unpstream. 
+- :Shell process is stopped when the buffer window is closed. :term processes keep running even when the window is closed, because the buffer still exists. 
+- :term and jobstart have a bug where the process output is truncated (see https://github.com/neovim/neovim/issues/26543). :Shell provides a workaround by simply sleeping for 0.5s. This is good enough for most usecases until the bug is resolved unpstream. 
 
 The most important thing I need from :term to use it more is to allow setting the width of the pty, instead of getting the width from the current window.
 
