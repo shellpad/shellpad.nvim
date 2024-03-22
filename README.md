@@ -42,3 +42,5 @@ I wrote this because while the :term and :r! commands are quite nice, I found my
 - :r! blocks until the process is completed, but :Shell is async and appends the output to the buffer as it is happening
 - :Shell creates a new scratch buffer, instead of using the current buffer
 
+### Differences with :! command:
+-  :! opens a special buffer, you cannot move the cursor around inside it or do anything that you can do in normal buffers like yanking a line or gf or gF. All of that is possible with :Shell. 
