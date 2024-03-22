@@ -5,9 +5,6 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 Using :Shell to run commands:
 [![asciicast](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf.svg)](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf)
 
-Using :Shell to run a compile command and jump to the line with error:
-[![asciicast](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt.svg)](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt)
-
 ## Usage
 ```
 :Shell COMMAND
@@ -49,3 +46,8 @@ The most important thing I need from :term to use it more is to allow setting th
 
 ### Differences with the :! command:
 -  :! opens a special buffer, you cannot move the cursor around inside it or do anything that you can do in normal buffers like yanking a line or gf or gF. The :! window is closed when you press any key. But :Shell buffers let you do those things.
+
+### Jump to files demo using gF or gf
+
+Using :Shell to run a compile command and jump to the line with error:
+[![asciicast](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt.svg)](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt)
