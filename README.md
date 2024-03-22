@@ -38,6 +38,6 @@ I wrote this because while the :term and :r! commands are quite nice, I found my
 - :term and jobstart have a job where the process output is truncated (see https://github.com/neovim/neovim/issues/26543). :Shell provides a workaround by simply sleeping for 0.5s. This is good enough for most usecases until the bug is resolved unpstream. 
 
 ### Differences with the :r! command:
-- You can see the live output
-- A new scratch buffer is created, instead of using the current buffer
+- :r! blocks until the process is completed, but :Shell is async and appends the output to the buffer as it is happening
+- :Shell creates a new scratch buffer, instead of using the current buffer
 
