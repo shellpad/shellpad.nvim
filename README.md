@@ -25,7 +25,7 @@ require('lazy').setup({
   },
 })
 ```
-See [tests](/tests/) for simple installation example.
+See [tests](/tests/) for a simple installation example.
 
 ## Motivation
 I wrote this because while the :term and :r! commands are quite nice, I found myself working in a slightly different way.
