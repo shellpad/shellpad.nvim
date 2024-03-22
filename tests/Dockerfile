@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:23.10
 
 ENV NVIM_VERSION v0.9.5
 
