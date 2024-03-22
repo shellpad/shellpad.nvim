@@ -38,6 +38,8 @@ I wrote this because while the :term and :r! commands are quite nice, I found my
 - :Shell process is stopped when the buffer window is closed
 - :term and jobstart have a job where the process output is truncated (see https://github.com/neovim/neovim/issues/26543). :Shell provides a workaround by simply sleeping for 0.5s. This is good enough for most usecases until the bug is resolved unpstream. 
 
+If :term allowed setting the width of the pty instead of getting the width from the current window, then this plugin would probably be unnecessary :)
+
 ### Differences with the :r! command:
 - :r! blocks until the process is completed, but :Shell is async and appends the output to the buffer as it is happening
 - :Shell creates a new scratch buffer, instead of using the current buffer
