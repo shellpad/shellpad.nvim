@@ -1,6 +1,6 @@
 # shell.nvim
 
-Adds the :Shell command for running a non-interactive shell command in a temporary buffer.
+Adds the :Shell command for running a non-interactive shell command (no pty) in a temporary buffer.
 
 [![asciicast](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf.svg)](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf)
 [![asciicast](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt.svg)](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt)
