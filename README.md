@@ -2,6 +2,8 @@
 
 Adds the :Shell command for running a non-interactive shell command in a temporary buffer.
 
+[![asciicast](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf.svg)](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf)
+
 ## Usage
 ```
 :Shell COMMAND
