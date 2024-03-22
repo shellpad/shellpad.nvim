@@ -46,7 +46,7 @@ The most important thing I need from :term to use it more is to allow setting th
 ### Differences with the :! command:
 -  :! opens a special buffer, you cannot move the cursor around inside it or do anything that you can do in normal buffers like yanking a line or gf or gF. The :! window is closed when you press any key. But :Shell buffers let you do those things.
 
-### Jump to files demo using gF or gf
+## Another example: jump to file using gF
 
 Using :Shell to run a compile command and jump to the line with error:
 [![asciicast](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt.svg)](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt)
