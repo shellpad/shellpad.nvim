@@ -4,7 +4,6 @@ set -o pipefail
 set -x
 
 nvim --version
-mkdir -p ~/.config/nvim
 nvim \
   +'set nowrap' \
   +'Shell ls -lash' \
