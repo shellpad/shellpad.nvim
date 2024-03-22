@@ -2,18 +2,6 @@
 
 Adds :Shell command to run a non-interactive shell command in a temporary buffer.
 
-## Quick Start
-
-```
-require('lazy').setup({
-  {
-    "siadat/shell.nvim",
-    opts = {},
-    dev = true,
-  },
-})
-```
-
 ## Usage
 ```
 :Shell COMMAND
@@ -24,6 +12,16 @@ require('lazy').setup({
 ## Example
 ```
 :Shell ping -c 3 localhost
+```
+
+## Installation
+```
+require('lazy').setup({
+  {
+    "siadat/shell.nvim",
+    opts = {},
+  },
+})
 ```
 
 ## Motivation
