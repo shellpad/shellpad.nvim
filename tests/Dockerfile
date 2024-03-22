@@ -14,10 +14,10 @@ RUN tar xvzf nvim-linux64.tar.gz
 ENV PATH="/work/nvim-linux64/bin:${PATH}"
 
 COPY . /work/src/nvim-plugins/$PLUGIN_NAME
-COPY tests/test.bash /work/test.bash
+COPY tests/entrypoint.bash /work/entrypoint.bash
 COPY tests/init.lua /root/.config/nvim/init.lua
 
 # Run once to install Lazy and the plugin
 RUN nvim --headless +'qall'
 
-ENTRYPOINT ["/work/test.bash"]
+ENTRYPOINT ["/work/entrypoint.bash"]
