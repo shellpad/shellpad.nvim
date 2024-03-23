@@ -113,7 +113,7 @@ M.setup = function()
     })
 
     buf_chan_map[buf] = channel_id
-    vim.api.nvim_create_autocmd({"WinClosed"}, {
+    vim.api.nvim_create_autocmd({"BufHidden"}, {
       buffer = buf,
       callback = function()
         StopShell(channel_id)
