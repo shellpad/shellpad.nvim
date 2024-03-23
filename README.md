@@ -13,8 +13,11 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 
 ## Example
 ```
+:Shell rg -n pattern .
 :Shell ping -c 3 localhost
 ```
+
+Hint: In the rg example, you can press gF on a file path to jump to the file under the cursor. This is a NeoVim/Vim feature.
 
 ## Installation
 ```
