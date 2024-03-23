@@ -107,59 +107,40 @@ M.setup = function()
   end, { nargs = 1 })
 end
 
+-- This sorter/matcher will preserve the order of the results, while still
+-- allowing for fuzzy matching. This is useful for the command history search,
+-- where we want to show the most recent commands first, but still allow for
+-- fuzzy matching.
 M.telescope_history_search = function()
   local sorters = require "telescope.sorters"
-  local pickers = require "telescope.pickers"
-  local finders = require "telescope.finders"
-  local actions = require "telescope.actions"
-  local conf = require("telescope.config").values
+  local FILTERED = -1
+  local preserve_order_fuzzy_sorter = function(sorter_opts)
+    sorter_opts = sorter_opts or {}
+    sorter_opts.ngram_len = 2
 
-  local opts = {}
-  opts.filter_fn = function(cmd)
-    return string.match(cmd, "^Shell .*")
-  end
-  opts.sorter = sorters.fuzzy_with_index_bias()
+    local fuzzy_sorter = sorters.get_fzy_sorter(sorter_opts)
 
-  -- This is mostly copied from https://github.com/nvim-telescope/telescope.nvim/pull/2132
-  return function()
-    local history_string = vim.fn.execute "history cmd"
-    local history_list = vim.split(history_string, "\n")
-
-    local results = {}
-    local filter_fn = opts.filter_fn
-
-    for i = #history_list, 3, -1 do
-      local item = history_list[i]
-      local _, finish = string.find(item, "%d+ +")
-      local cmd = string.sub(item, finish + 1)
-
-      if filter_fn then
-
-        if filter_fn(cmd) then
-          table.insert(results, cmd)
+    return sorters.new {
+      scoring_function = function(_, prompt, line, entry, cb_add, cb_filter)
+        -- Only match commands that start with "Shell"
+        if not string.match(line, "^Shell") then
+          return FILTERED
         end
-      else
-        table.insert(results, cmd)
-      end
-    end
 
-    pickers
-      .new(opts, {
-        prompt_title = "Command History",
-        finder = finders.new_table(results),
-        sorter = conf.generic_sorter(opts),
+        local base_score = fuzzy_sorter:scoring_function(prompt, line, cb_add, cb_filter)
 
-        attach_mappings = function(_, map)
-          actions.select_default:replace(actions.set_command_line)
-          map({ "i", "n" }, "<C-e>", actions.edit_command_line)
+        if base_score == FILTERED then
+          return FILTERED
+        else
+          return entry.index
+        end
+      end,
+      highlighter = fuzzy_sorter.highlighter,
+    }
+  end
 
-          -- TODO: Find a way to insert the text... it seems hard.
-          -- map('i', '<C-i>', actions.insert_value, { expr = true })
-
-          return true
-        end,
-      })
-      :find()
+  return function()
+    require('telescope.builtin').command_history({sorter = preserve_order_fuzzy_sorter()})
   end
 end
 
