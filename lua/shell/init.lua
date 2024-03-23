@@ -13,6 +13,7 @@ local StartShell = function(opts)
 
   local output_prefix = ""
   local insert_output = function(bufnr, data)
+    vim.cmd.undojoin()
     -- check if bufnr still exists
     if vim.api.nvim_buf_is_loaded(bufnr) == false then
       return
