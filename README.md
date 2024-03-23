@@ -10,12 +10,14 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 :Shell --no-follow COMMAND
 :Shell --stop
 ```
+* Press Ctrl-C to stop the process in the current buffer.
 
 ## Example
 ```
 :Shell rg -n pattern .
 :Shell ping -c 3 localhost
 ```
+
 Hint: In the rg example, you can press gF to jump to the file under the cursor. See :help gF.
 
 ## Installation

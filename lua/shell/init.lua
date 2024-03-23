@@ -105,6 +105,8 @@ M.setup = function()
         StopShell(channel_id)
       end,
     })
+
+    vim.keymap.set('n', '<C-c>', function() StopShell(channel_id) end, { noremap = true, desc = "shell.nvim: Stop process", buffer = buf })
   end, { nargs = 1 })
 end
 
