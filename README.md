@@ -17,13 +17,66 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 ```
 
 ## Installation
-```
+```lua
 require('lazy').setup({
   {
     "siadat/shell.nvim",
     opts = {},
   },
 })
+```
+
+If you have Telescope, you can create binding to search your Shell commands:
+```lua
+-- Function to search command history
+local command_history = function(opts)
+  local pickers = require "telescope.pickers"
+  local finders = require "telescope.finders"
+  local actions = require "telescope.actions"
+  local conf = require("telescope.config").values
+
+  -- This is copied from https://github.com/nvim-telescope/telescope.nvim/pull/2132
+  local history_string = vim.fn.execute "history cmd"
+  local history_list = vim.split(history_string, "\n")
+
+  local results = {}
+  local filter_fn = opts.filter_fn
+
+  for i = #history_list, 3, -1 do
+    local item = history_list[i]
+    local _, finish = string.find(item, "%d+ +")
+    local cmd = string.sub(item, finish + 1)
+
+    if filter_fn then
+      if filter_fn(cmd) then
+        table.insert(results, cmd)
+      end
+    else
+      table.insert(results, cmd)
+    end
+  end
+
+  pickers
+    .new(opts, {
+      prompt_title = "Command History",
+      finder = finders.new_table(results),
+      sorter = conf.generic_sorter(opts),
+
+      attach_mappings = function(_, map)
+        actions.select_default:replace(actions.set_command_line)
+        map({ "i", "n" }, "<C-e>", actions.edit_command_line)
+
+        -- TODO: Find a way to insert the text... it seems hard.
+        -- map('i', '<C-i>', actions.insert_value, { expr = true })
+
+        return true
+      end,
+    })
+    :find()
+end
+
+-- Create mapping
+vim.keymap.set('n', '<leader>sc', function() command_history({filter_fn = function(cmd) return string.match(cmd, "Shell .*"); end}); end, { desc = '[S]earch [C]ommands' })
 ```
 
 ## Motivation
