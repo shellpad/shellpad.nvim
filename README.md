@@ -17,7 +17,7 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 :Shell ping -c 3 localhost
 ```
 
-Hint: In the rg example, you can press gF on a file path to jump to the file under the cursor. This is a NeoVim/Vim feature.
+Hint: In the rg example, you can press gF to jump to the file under the cursor. See :help gF.
 
 ## Installation
 ```
