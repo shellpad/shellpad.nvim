@@ -17,7 +17,7 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 ```
 
 ## Installation
-```lua
+```
 require('lazy').setup({
   {
     "siadat/shell.nvim",
@@ -26,9 +26,9 @@ require('lazy').setup({
 })
 ```
 
-If you have Telescope, you can create binding to search your Shell commands:
-```lua
--- Function to search command history
+If you have Telescope, you can search all your :Shell commands using the following function and mapping:
+```
+-- This function is mostly copied from https://github.com/nvim-telescope/telescope.nvim/pull/2132
 local command_history = function(opts)
   local pickers = require "telescope.pickers"
   local finders = require "telescope.finders"
@@ -40,7 +40,9 @@ local command_history = function(opts)
   local history_list = vim.split(history_string, "\n")
 
   local results = {}
-  local filter_fn = opts.filter_fn
+  local filter_fn = function(cmd)
+    return string.match(cmd, "Shell .*")
+  end
 
   for i = #history_list, 3, -1 do
     local item = history_list[i]
@@ -76,7 +78,7 @@ local command_history = function(opts)
 end
 
 -- Create mapping
-vim.keymap.set('n', '<leader>sc', function() command_history({filter_fn = function(cmd) return string.match(cmd, "Shell .*"); end}); end, { desc = '[S]earch [C]ommands' })
+vim.keymap.set('n', '<leader>sc', command_history, { desc = '[S]earch [C]ommands' })
 ```
 
 ## Motivation
