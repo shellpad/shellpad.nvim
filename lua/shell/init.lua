@@ -6,6 +6,20 @@ local StopShell = function(channel_id)
   end
 end
 
+-- This is based on https://github.com/Robitx/gp.nvim/commit/5ccf0d28c6fbc206ebd853a9a2f1b1ab9878cdab
+local undojoin = function(buf)
+  if not buf or not vim.api.nvim_buf_is_loaded(buf) then
+    return
+  end
+  local status, result = pcall(vim.cmd.undojoin)
+  if not status then
+    if result:match("E790") then
+      return
+    end
+    M.error("Error running undojoin: " .. vim.inspect(result))
+  end
+end
+
 local StartShell = function(opts)
   local command = opts.command
   local buf = opts.buf
@@ -13,7 +27,7 @@ local StartShell = function(opts)
 
   local output_prefix = ""
   local insert_output = function(bufnr, data)
-    vim.cmd.undojoin()
+    undojoin(bufnr)
     -- check if bufnr still exists
     if vim.api.nvim_buf_is_loaded(bufnr) == false then
       return
