@@ -21,7 +21,7 @@ local undojoin = function(buf)
 end
 
 local StartShell = function(opts)
-  local command = opts.command
+  local shell_command = opts.shell_command
   local buf = opts.buf
   local follow = opts.follow
 
@@ -62,7 +62,7 @@ local StartShell = function(opts)
     end
   end
 
-  return vim.fn.jobstart(command, {
+  return vim.fn.jobstart(shell_command, {
     pty = false,
     detach = false,
     stdout_buffered = false,
@@ -86,33 +86,44 @@ local StartShell = function(opts)
 end
 
 M.setup = function()
-  local buf_chan_map = {}
+  local buf_info = {}
   vim.api.nvim_create_user_command("Shell", function(opts)
-    local command = opts.fargs[1]
+    local full_command = opts.fargs[1]
+    local shell_command = full_command
     local follow = true
+    local words = vim.fn.split(full_command, " ")
 
-    local words = vim.fn.split(command, " ")
     if words[1] == "--no-follow" then
       follow = false
-      command = table.concat(vim.list_slice(words, 2, #words), " ")
+      shell_command = table.concat(vim.list_slice(words, 2, #words), " ")
     elseif words[1] == "--stop" then
       local buf = vim.api.nvim_get_current_buf()
-      local channel_id = buf_chan_map[buf]
+      local channel_id = buf_info[buf].channel_id
       StopShell(channel_id)
+      return
+    elseif words[1] == "--edit" then
+      vim.fn.histdel("cmd", -1) -- TODO: maybe allow this to stay in history, but instead filter it out in the command history search function?
+      local buf = vim.api.nvim_get_current_buf()
+      vim.api.nvim_feedkeys(':Shell ' .. buf_info[buf].full_command, "n", true)
       return
     end
 
+    -- create new buffer
     local buf = vim.api.nvim_create_buf(false, false)
+    -- switch to the new buffer
     vim.cmd.buffer(buf)
 
     local channel_id = StartShell({
       follow = follow,
       -- Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
-      command = string.format("%s ; EXIT_CODE=$? ; sleep 0.5s ; exit $EXIT_CODE", command),
+      shell_command = string.format("%s ; EXIT_CODE=$? ; sleep 0.5s ; exit $EXIT_CODE", shell_command),
       buf = buf,
     })
 
-    buf_chan_map[buf] = channel_id
+    buf_info[buf] = {
+      channel_id = channel_id,
+      full_command = full_command,
+    }
     vim.api.nvim_create_autocmd({"BufHidden"}, {
       buffer = buf,
       callback = function()

@@ -9,6 +9,7 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 :Shell COMMAND
 :Shell --no-follow COMMAND
 :Shell --stop
+:Shell --edit
 ```
 * Press Ctrl-C to stop the process in the current buffer.
 
