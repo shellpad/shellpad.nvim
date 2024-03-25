@@ -35,7 +35,7 @@ require('lazy').setup({
 If you have Telescope, you can search all your :Shell commands using the following function and mapping:
 
 ```
-vim.keymap.set('n', '<leader>sc', require('shell').telescope_history_search(), { desc = '[S]earch [C]ommands' })
+vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = '[S]earch [C]ommands' })
 ```
 
 ## Motivation

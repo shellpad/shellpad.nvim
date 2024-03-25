@@ -131,7 +131,7 @@ M.setup = function()
       end,
     })
 
-    vim.keymap.set('n', '<C-c>', function() StopShell(channel_id) end, { noremap = true, desc = "shell.nvim: Stop process", buffer = buf })
+    vim.keymap.set('n', '<C-c>', function() StopShell(channel_id) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
   end, { nargs = 1 })
 end
 

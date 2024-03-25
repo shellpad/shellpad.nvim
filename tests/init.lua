@@ -18,7 +18,8 @@ vim.opt.rtp:prepend(lazypath)
 -- Install Shell.nvim
 --
 require("lazy").setup({
-  { "siadat/shell.nvim", opts = {}, dev = true },
+  { "shellpad/shellpad.nvim", opts = {}, dev = true },
+
   { "siadat/animated-resize.nvim", opts = {} }, -- For asciinema recording
 }, { dev = { path = '/work/src/nvim-plugins' } })
 
