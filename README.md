@@ -41,7 +41,8 @@ require('lazy').setup({
   {
     "shellpad/shellpad.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
-    config = function(_)
+    config = function(opts)
+      require('shellpad').setup(opts)
       vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = '[S]earch [C]ommands' })
     end,
   },
