@@ -135,6 +135,40 @@ M.setup = function()
   end, { nargs = 1 })
 end
 
+M.command_history = function(opts)
+  local history_count = vim.fn.histnr("cmd")
+  local results = {}
+  for i = history_count, 1, -1 do
+    table.insert(results, vim.fn.histget("cmd", i))
+  end
+
+  local pickers = require "telescope.pickers"
+  local finders = require "telescope.finders"
+  local actions = require "telescope.actions"
+  local conf = require("telescope.config").values
+
+  -- The rest of this function is copied from Telescope's command_history function.
+  -- The reason we are not using Telescope's command_history is because Telescope uses `:history cmd` which truncates items.
+  -- https://sourcegraph.com/github.com/nvim-telescope/telescope.nvim@0.1.6/-/blob/lua/telescope/builtin/__internal.lua?L566-567
+  pickers
+    .new(opts, {
+      prompt_title = "Command History",
+      finder = finders.new_table(results),
+      sorter = conf.generic_sorter(opts),
+
+      attach_mappings = function(_, map)
+        actions.select_default:replace(actions.set_command_line)
+        map({ "i", "n" }, "<C-e>", actions.edit_command_line)
+
+        -- TODO: Find a way to insert the text... it seems hard.
+        -- map('i', '<C-i>', actions.insert_value, { expr = true })
+
+        return true
+      end,
+    })
+    :find()
+end
+
 -- This sorter/matcher will preserve the order of the results, while still
 -- allowing for fuzzy matching. This is useful for the command history search,
 -- where we want to show the most recent commands first, but still allow for
@@ -168,7 +202,7 @@ M.telescope_history_search = function()
   end
 
   return function()
-    require('telescope.builtin').command_history({sorter = preserve_order_fuzzy_sorter()})
+    M.command_history({sorter = preserve_order_fuzzy_sorter()})
   end
 end
 
