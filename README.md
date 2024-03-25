@@ -1,4 +1,4 @@
-# shell.nvim
+# shellpad.nvim
 
 Adds the :Shell command for running a non-interactive shell command (no pty) in a temporary buffer.
 
@@ -26,7 +26,7 @@ Hint: In the rg example, you can press gF to jump to the file under the cursor. 
 ```
 require('lazy').setup({
   {
-    "siadat/shell.nvim",
+    "shellpad/shellpad.nvim",
     opts = {},
   },
 })
