@@ -48,7 +48,7 @@ require('lazy').setup({
 })
 ```
 
-## Motivation
+## Comparisons
 I wrote this because while Tmux, :term and :r! commands are quite nice, I found myself working in a slightly different way.
 
 ### Differences with the Tmux:
