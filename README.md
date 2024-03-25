@@ -25,10 +25,7 @@ Hint: In the rg example, you can press gF to jump to the file under the cursor. 
 ## Installation
 ```
 require('lazy').setup({
-  {
-    "shellpad/shellpad.nvim",
-    opts = {},
-  },
+  { "shellpad/shellpad.nvim", opts = {} },
 })
 ```
 
