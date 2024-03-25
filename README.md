@@ -57,8 +57,9 @@ I wrote this because while Tmux, :term and :r! commands are quite nice, I found 
 - In Tmux, the output of each command is appended to the previous one. This makes it hard to figure out if a search match belongs to a previous command or the last command. So, in effect you will have to either clear history of the Tmux pane, or exit the pane and create a new one. With :Shell, each command output has its own buffer.
 
 ### Differences with the :term command:
+- [Screencast comparing :term and :Shell](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt)
 - :term has colors and gets user input. :Shell has no pty hence no colors and is only useful for non-interactive commands. (Pty is disabled to make sure lines are not wrapped as mentioned in the next item)
-- :term output is wrapped and difficult to work with (see https://github.com/neovim/neovim/issues/2514). :Shell does not wrap lines in its output. 
+- :term output is wrapped and difficult to work with (see https://github.com/neovim/neovim/issues/2514). :Shell does not wrap lines in its output.
 - :Shell uses a normal buffer, with no special terminal mode. The :term buffers have a special terminal mode. With :term, if you enter the Insert mode on a completed process, and press any key, the whole buffer is closed and deleted. In :Shell, you can enter and leave the Insert mode like any other buffer. 
 - By default, leaving insert mode from a :term buffer is done via thr special key sequence ctrl-\ ctrl-n. In :Shell, you just press the escape key, like any other buffer.
 - :Shell process is stopped when the buffer window is closed. :term processes keep running even when the window is closed, because the buffer still exists. 
@@ -73,8 +74,3 @@ The most important thing I need from :term to use it more is to allow setting th
 
 ### Differences with the :! command:
 -  :! opens a special buffer, you cannot move the cursor around inside it or do anything that you can do in normal buffers like yanking a line or gf or gF. The :! window is closed when you press any key. But :Shell buffers let you do those things.
-
-## Another example: jump to file using gF
-
-Using :Shell to run a compile command and jump to the line with error:
-[![asciicast](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt.svg)](https://asciinema.org/a/dj4r53MzhokWa2pD86Zi91eTt)
