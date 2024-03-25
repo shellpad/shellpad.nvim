@@ -17,6 +17,7 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 ```
 :Shell rg -n pattern .
 :Shell ping -c 3 localhost
+:Shell tail --lines=0 -F ~/.local/state/nvim/log
 ```
 
 Hint: In the rg example, you can press gF to jump to the file under the cursor. See :help gF.
