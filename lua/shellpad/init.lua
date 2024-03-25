@@ -106,6 +106,11 @@ M.setup = function()
       local buf = vim.api.nvim_get_current_buf()
       vim.api.nvim_feedkeys(':Shell ' .. buf_info[buf].full_command, "n", true)
       return
+    elseif words[1] == "--lua" then
+      local lua_command = table.concat(vim.list_slice(words, 2, #words), " ")
+      local config = vim.fn.luaeval(lua_command)
+      print(string.format("WIP: will run command with %s", vim.inspect(config)))
+      return
     end
 
     -- create new buffer
