@@ -39,7 +39,12 @@ vim.keymap.set('n', '<leader>sc', require('shell').telescope_history_search(), {
 ```
 
 ## Motivation
-I wrote this because while the :term and :r! commands are quite nice, I found myself working in a slightly different way.
+I wrote this because while Tmux, :term and :r! commands are quite nice, I found myself working in a slightly different way.
+
+### Differences with the Tmux:
+- There is no builtin communication between a Tmux pane and NeoVim. It can be quite complicated to setup a way to a text (eg filename) that is outputed from a command in a Tmux pane to NeoVim.
+- There is no way to further process the output of a command in a Tmux pane. You will have to either copy-paste or save the buffer and open it in NeoVim. With :Shell, you have access to all NeoVim features for further processing the output.
+- In Tmux, the output of each command is appended to the previous one. This makes it hard to figure out if a search match belongs to a previous command or the last command. So, in effect you will have to either clear history of the Tmux pane, or exit the pane and create a new one. With :Shell, each command output has its own buffer.
 
 ### Differences with the :term command:
 - :term has colors and gets user input. :Shell has no pty hence no colors and is only useful for non-interactive commands. (Pty is disabled to make sure lines are not wrapped as mentioned in the next item)
