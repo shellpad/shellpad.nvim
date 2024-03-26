@@ -66,7 +66,8 @@ require('lazy').setup({
 ```
 
 ## Comparisons
-I wrote this because while Tmux, :term and :r! commands are quite nice, I found myself working in a slightly different way.
+This plugin aims to compliment Tmux, :term and :r!, not to replace them.
+Each of them is useful in different situations.
 
 ### Differences with the Tmux:
 I love Tmux, I have been using it for many years (I made a few [contribution in 2015](https://github.com/search?q=repo%3Atmux%2Ftmux+siadat&type=commits)).
