@@ -57,7 +57,7 @@ I wrote this because while Tmux, :term and :r! commands are quite nice, I found 
 ### Differences with the Tmux:
 I love Tmux, I have been using it for many years (I made a few [contribution in 2015](https://github.com/search?q=repo%3Atmux%2Ftmux+siadat&type=commits)).
 In fact, I run everything inside Tmux sessions.
-But there are situations when running a command inside NeoVim is more convenient for me and helps me stay in flow while developing.
+But there are situations when running a command inside NeoVim is more convenient for me and helps me stay in flow while programming.
 
 - There is no builtin communication between a Tmux pane and NeoVim. It can be quite complicated to setup a way to a text (eg filename) that is outputed from a command in a Tmux pane to NeoVim.
 - There is no way to further process the output of a command in a Tmux pane. You will have to either copy-paste or save the buffer and open it in NeoVim. With :Shell, you have access to all NeoVim features for further processing the output.
