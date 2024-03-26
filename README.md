@@ -28,6 +28,7 @@ Run a long running command:
 Tail a log file:
 ```
 :Shell tail --lines=0 -F ~/.local/state/nvim/log
+:set number
 ```
 
 Run a NeoVim Lua function after the command is completed:
