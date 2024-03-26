@@ -22,13 +22,13 @@ Search for files using rg:
 
 Run a long running command:
 ```
-:Shell ping -c 3 localhost
+:Shell strace ping -c 3 localhost
+:set number
 ```
 
 Tail a log file:
 ```
 :Shell tail --lines=0 -F ~/.local/state/nvim/log
-:set number
 ```
 
 Run a NeoVim Lua function after the command is completed:
