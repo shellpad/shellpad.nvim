@@ -34,6 +34,8 @@ local StartShell = function(opts)
       return
     end
 
+    local at_last_line = vim.fn.line('.') == vim.fn.line('$')
+
     for i,line in ipairs(data) do
       -- when printing binary bytes, the stderr or stdout might
       -- include \n, which is not splitted by vim. This might be
@@ -58,7 +60,14 @@ local StartShell = function(opts)
     -- make sure the end of the buffer is visible:
     if follow then
       vim.api.nvim_buf_call(bufnr, function()
-        vim.cmd('normal! G')
+        if vim.api.nvim_get_mode().mode == 'n' then
+          if at_last_line then
+            -- only follow the output if the cursor is at the end of the buffer
+            -- this allows users to navigate the buffer without being interrupted
+            -- and follow the output again by going to the last line, eg by pressing 'G'
+            vim.cmd('normal! G')
+          end
+        end
       end)
     end
   end
