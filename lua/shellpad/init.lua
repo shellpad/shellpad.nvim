@@ -105,7 +105,6 @@ M.setup = function()
       StopShell(channel_id)
       return
     elseif words[1] == "--edit" then
-      vim.fn.histdel("cmd", -1) -- TODO: maybe allow this to stay in history, but instead filter it out in the command history search function?
       local buf = vim.api.nvim_get_current_buf()
       vim.api.nvim_feedkeys(':Shell ' .. buf_info[buf].full_command, "n", true)
       return
