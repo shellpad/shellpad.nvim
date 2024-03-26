@@ -10,6 +10,7 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 :Shell --no-follow COMMAND
 :Shell --stop
 :Shell --edit
+:Shell --lua {command='COMMAND', on_exit=function() end}
 ```
 * Press Ctrl-C to stop the process in the current buffer.
 
@@ -18,6 +19,7 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 :Shell rg -n pattern .
 :Shell ping -c 3 localhost
 :Shell tail --lines=0 -F ~/.local/state/nvim/log
+:Shell --lua {command="ping -c3 localhost", on_exit=function() vim.cmd.normal("ggn") end}
 ```
 
 Hint: In the rg example, you can press gF to jump to the file under the cursor. See :help gF.

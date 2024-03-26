@@ -24,6 +24,7 @@ local StartShell = function(opts)
   local shell_command = opts.shell_command
   local buf = opts.buf
   local follow = opts.follow
+  local on_exit_cb = opts.on_exit
 
   local output_prefix = ""
   local insert_output = function(bufnr, data)
@@ -81,6 +82,7 @@ local StartShell = function(opts)
         string.format("[Process exited with code %d]", code),
       }
       insert_output(buf, exit_lines)
+      on_exit_cb()
     end
   })
 end
@@ -90,6 +92,7 @@ M.setup = function()
   vim.api.nvim_create_user_command("Shell", function(opts)
     local full_command = opts.fargs[1]
     local shell_command = full_command
+    local on_exit = function() end
     local follow = true
     local words = vim.fn.split(full_command, " ")
 
@@ -108,9 +111,9 @@ M.setup = function()
       return
     elseif words[1] == "--lua" then
       local lua_command = table.concat(vim.list_slice(words, 2, #words), " ")
-      local config = vim.fn.luaeval(lua_command)
-      print(string.format("WIP: will run command with %s", vim.inspect(config)))
-      return
+      local config = vim.fn.luaeval(lua_command) or {}
+      shell_command = config.command or ""
+      on_exit = config.on_exit or function() end
     end
 
     -- create new buffer
@@ -122,6 +125,7 @@ M.setup = function()
       follow = follow,
       -- Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
       shell_command = string.format("%s ; EXIT_CODE=$? ; sleep 0.5s ; exit $EXIT_CODE", shell_command),
+      on_exit = on_exit,
       buf = buf,
     })
 
