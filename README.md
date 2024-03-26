@@ -1,4 +1,4 @@
-# shellpad.nvim
+# 📜 shellpad.nvim
 
 Adds the :Shell command for running a non-interactive shell command (no pty) in a temporary buffer.
 
