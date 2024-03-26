@@ -1,11 +1,5 @@
 local M = {}
 
-local StopShell = function(channel_id)
-  if channel_id ~= nil then
-    vim.fn.jobstop(channel_id)
-  end
-end
-
 -- This is based on https://github.com/Robitx/gp.nvim/commit/5ccf0d28c6fbc206ebd853a9a2f1b1ab9878cdab
 local undojoin = function(buf)
   if not buf or not vim.api.nvim_buf_is_loaded(buf) then
@@ -98,6 +92,16 @@ end
 
 M.setup = function()
   local buf_info = {}
+
+  local StopShell = function(buf)
+    local channel_id = buf_info[buf].channel_id
+    if channel_id ~= nil then
+      vim.fn.jobstop(channel_id)
+      buf_info[buf].channel_id = nil
+      vim.cmd('normal! G')
+    end
+  end
+
   vim.api.nvim_create_user_command("Shell", function(opts)
     local full_command = opts.fargs[1]
     local shell_command = full_command
@@ -110,8 +114,7 @@ M.setup = function()
       shell_command = table.concat(vim.list_slice(words, 2, #words), " ")
     elseif words[1] == "--stop" then
       local buf = vim.api.nvim_get_current_buf()
-      local channel_id = buf_info[buf].channel_id
-      StopShell(channel_id)
+      StopShell(buf)
       return
     elseif words[1] == "--edit" then
       local buf = vim.api.nvim_get_current_buf()
@@ -144,11 +147,11 @@ M.setup = function()
     vim.api.nvim_create_autocmd({"BufHidden"}, {
       buffer = buf,
       callback = function()
-        StopShell(channel_id)
+        StopShell(buf)
       end,
     })
 
-    vim.keymap.set('n', '<C-c>', function() StopShell(channel_id) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
+    vim.keymap.set('n', '<C-c>', function() StopShell(buf) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
   end, { nargs = 1 })
 end
 
