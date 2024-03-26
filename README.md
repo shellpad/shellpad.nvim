@@ -30,7 +30,7 @@ Tail a log file:
 :Shell tail --lines=0 -F ~/.local/state/nvim/log
 ```
 
-Perform an action after the command is completed:
+Run a NeoVim Lua function after the command is completed:
 ```
 :Shell --lua {command="ping -c3 localhost", on_exit=function() vim.cmd.normal("ggn") end}
 ```
