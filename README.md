@@ -14,11 +14,24 @@ Adds the :Shell command for running a non-interactive shell command (no pty) in 
 ```
 * Press Ctrl-C to stop the process in the current buffer.
 
-## Example
+## Examples
+Search for files using rg:
 ```
 :Shell rg -n pattern .
+```
+
+Run a long running command:
+```
 :Shell ping -c 3 localhost
+```
+
+Tail a log file:
+```
 :Shell tail --lines=0 -F ~/.local/state/nvim/log
+```
+
+Perform an action after the command is completed:
+```
 :Shell --lua {command="ping -c3 localhost", on_exit=function() vim.cmd.normal("ggn") end}
 ```
 
