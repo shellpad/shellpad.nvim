@@ -28,7 +28,14 @@ local StartShell = function(opts)
       return
     end
 
-    local at_last_line = vim.fn.line('.') == vim.fn.line('$')
+    local at_last_line = false
+    -- NOTE: if we don't use nvim_buf_call(), we
+    -- get the current position of the cursor in
+    -- the current buffer, which might be different
+    -- from the buffer we are writing to.
+    vim.api.nvim_buf_call(bufnr, function()
+      at_last_line = vim.fn.line('.') == vim.fn.line('$')
+    end)
 
     for i,line in ipairs(data) do
       -- when printing binary bytes, the stderr or stdout might
