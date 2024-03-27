@@ -159,7 +159,7 @@ M.setup = function()
     })
 
     vim.keymap.set('n', '<C-c>', function() StopShell(buf) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
-  end, { nargs = 1 })
+  end, { nargs = 1, complete = "file" })
 end
 
 M.command_history = function(opts)
