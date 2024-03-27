@@ -20,6 +20,11 @@ Search for files using rg:
 :Shell rg -n pattern .
 ```
 
+View git status
+```
+:Shell git status
+```
+
 Run a long running command:
 ```
 :Shell strace ping -c 3 localhost
