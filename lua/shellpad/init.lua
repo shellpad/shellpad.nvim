@@ -137,8 +137,10 @@ M.setup = function()
 
     -- create new buffer
     local buf = vim.api.nvim_create_buf(false, false)
+
     -- switch to the new buffer
     vim.cmd.buffer(buf)
+    vim.cmd.set("number")
 
     local channel_id = StartShell({
       follow = follow,
