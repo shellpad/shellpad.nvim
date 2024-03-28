@@ -59,14 +59,15 @@ local StartShell = function(opts)
     vim.api.nvim_buf_set_option(bufnr, 'modified', false)
 
     -- make sure the end of the buffer is visible:
+    local curr_buf = vim.api.nvim_get_current_buf()
     if follow then
       vim.api.nvim_buf_call(bufnr, function()
-        if vim.api.nvim_get_mode().mode == 'n' then
+        if bufnr ~= curr_buf or vim.api.nvim_get_mode().mode ~= 'i' then
           if at_last_line then
             -- only follow the output if the cursor is at the end of the buffer
             -- this allows users to navigate the buffer without being interrupted
             -- and follow the output again by going to the last line.
-            vim.fn.cursor('$', '$')
+            vim.cmd('keepjumps normal! G')
           end
         end
       end)
@@ -105,7 +106,7 @@ M.setup = function()
     if channel_id ~= nil then
       vim.fn.jobstop(channel_id)
       buf_info[buf].channel_id = nil
-      vim.fn.cursor('$', '$')
+      vim.cmd('keepjumps normal! G')
     end
   end
 
