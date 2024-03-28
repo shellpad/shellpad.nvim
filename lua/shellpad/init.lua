@@ -65,8 +65,8 @@ local StartShell = function(opts)
           if at_last_line then
             -- only follow the output if the cursor is at the end of the buffer
             -- this allows users to navigate the buffer without being interrupted
-            -- and follow the output again by going to the last line, eg by pressing 'G'
-            vim.cmd('normal! G')
+            -- and follow the output again by going to the last line.
+            vim.fn.cursor('$', '$')
           end
         end
       end)
@@ -105,7 +105,7 @@ M.setup = function()
     if channel_id ~= nil then
       vim.fn.jobstop(channel_id)
       buf_info[buf].channel_id = nil
-      vim.cmd('normal! G')
+      vim.fn.cursor('$', '$')
     end
   end
 
