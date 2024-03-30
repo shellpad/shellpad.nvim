@@ -47,7 +47,7 @@ Hint: In the rg example, you can press gF to jump to the file under the cursor. 
 
 Simple:
 
-```
+```lua
 require('lazy').setup({
   { "shellpad/shellpad.nvim", opts = {} },
 })
@@ -55,7 +55,7 @@ require('lazy').setup({
 
 With Telescope integration and some suggested key mappings:
 
-```
+```lua
 require('lazy').setup({
   {
     "shellpad/shellpad.nvim",
