@@ -44,27 +44,16 @@ Run a NeoVim Lua function after the command is completed:
 Hint: In the rg example, you can press gF to jump to the file under the cursor. See :help gF.
 
 ## Installation
+
+Simple:
+
 ```
 require('lazy').setup({
   { "shellpad/shellpad.nvim", opts = {} },
 })
 ```
 
-### History search
-
-If you use Telescope, you can search all your :Shell commands using the following function and mapping:
-
-```
-vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = '[S]earch [C]ommands' })
-```
-
-### Open `:Shell ` command quickly
-
-```
-vim.keymap.set('n', ';s', function() vim.api.nvim_feedkeys(':Shell ', 'n', false) end, { noremap = true, desc = 'shellpad: prepare shell command' })
-```
-
-### All combined
+With Telescope integration and some suggested key mappings:
 
 ```
 require('lazy').setup({
@@ -73,7 +62,9 @@ require('lazy').setup({
     dependencies = { "nvim-telescope/telescope.nvim" },
     config = function(opts)
       require('shellpad').setup(opts)
+      -- If you use Telescope, you can search all your :Shell commands using the following function and mapping:
       vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = 'shellpad: [S]earch [C]ommands' })
+      -- If typing `:Shell ` is too much for you, you can use the following mapping:
       vim.keymap.set('n', ';s', function() vim.api.nvim_feedkeys(':Shell ', 'n', false) end, { noremap = true, desc = 'shellpad: prepare shell command' })
     end,
   },
