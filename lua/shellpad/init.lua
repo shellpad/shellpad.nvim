@@ -148,7 +148,15 @@ M.setup = function()
     local channel_id = StartShell({
       follow = follow,
       -- Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
-      shell_command = string.format("%s ; EXIT_CODE=$? ; sleep 0.5s ; exit $EXIT_CODE", shell_command),
+      shell_command = string.format([[
+      if [ -e "$HOME/.shellpad" ]; then
+        . "$HOME/.shellpad"
+      fi
+      %s
+      EXIT_CODE=$?
+      sleep 0.5s
+      exit $EXIT_CODE
+      ]], shell_command),
       on_exit = on_exit,
       buf = buf,
     })
