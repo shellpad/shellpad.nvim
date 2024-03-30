@@ -50,13 +50,22 @@ require('lazy').setup({
 })
 ```
 
+### History search
+
 If you use Telescope, you can search all your :Shell commands using the following function and mapping:
 
 ```
 vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = '[S]earch [C]ommands' })
 ```
 
-All combined:
+### Open `:Shell ` command quickly
+
+```
+vim.keymap.set('n', ';s', function() vim.api.nvim_feedkeys(':Shell ', 'n', false) end, { noremap = true, desc = 'shellpad: prepare shell command' })
+```
+
+### All combined
+
 ```
 require('lazy').setup({
   {
@@ -64,7 +73,8 @@ require('lazy').setup({
     dependencies = { "nvim-telescope/telescope.nvim" },
     config = function(opts)
       require('shellpad').setup(opts)
-      vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = '[S]earch [C]ommands' })
+      vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = 'shellpad: [S]earch [C]ommands' })
+      vim.keymap.set('n', ';s', function() vim.api.nvim_feedkeys(':Shell ', 'n', false) end, { noremap = true, desc = 'shellpad: prepare shell command' })
     end,
   },
 })
