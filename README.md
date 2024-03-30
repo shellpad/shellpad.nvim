@@ -47,7 +47,7 @@ Hint: In the rg example, you can press gF to jump to the file under the cursor. 
 
 Simple:
 
-```lua
+```
 require('lazy').setup({
   { "shellpad/shellpad.nvim", opts = {} },
 })
@@ -55,15 +55,17 @@ require('lazy').setup({
 
 With Telescope integration and some suggested key mappings:
 
-```lua
+```
 require('lazy').setup({
   {
     "shellpad/shellpad.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
     config = function(opts)
       require('shellpad').setup(opts)
+
       -- If you use Telescope, you can search all your :Shell commands using the following function and mapping:
       vim.keymap.set('n', '<leader>sc', require('shellpad').telescope_history_search(), { desc = 'shellpad: [S]earch [C]ommands' })
+
       -- If typing `:Shell ` is too much for you, you can use the following mapping:
       vim.keymap.set('n', ';s', function() vim.api.nvim_feedkeys(':Shell ', 'n', false) end, { noremap = true, desc = 'shellpad: prepare shell command' })
     end,
