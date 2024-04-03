@@ -82,7 +82,7 @@ I love Tmux, I have been using it for many years (I made a few [contribution in 
 In fact, I run everything inside Tmux sessions.
 But there are situations when running a command inside NeoVim is more convenient for me and helps me stay in flow while programming.
 
-- There is no builtin communication between a Tmux pane and NeoVim. It can be quite complicated to setup a way to a text (eg filename) that is outputed from a command in a Tmux pane to NeoVim.
+- There is no builtin communication between a Tmux pane and NeoVim. It can be quite complicated to copy a string (eg filename) from a command stdout in a Tmux pane to NeoVim.
 - There is no way to further process the output of a command in a Tmux pane. You will have to either copy-paste or save the buffer and open it in NeoVim. With :Shell, you have access to all NeoVim features for further processing the output.
 - In Tmux, the output of each command is appended to the previous one. This makes it hard to figure out if a search match belongs to a previous command or the last command. So, in effect you will have to either clear history of the Tmux pane, or exit the pane and create a new one. With :Shell, each command output has its own buffer.
 
