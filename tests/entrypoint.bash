@@ -27,3 +27,4 @@ Hello world!
 5y
 [Process exited with code 0]" > want1
 git diff --color=always --no-index want1 got1
+echo $?

@@ -10,6 +10,7 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 :Shell --no-follow COMMAND
 :Shell --stop
 :Shell --edit
+:Shell --rerun-last
 :Shell --lua {command='COMMAND', on_exit=function() end}
 ```
 * Press Ctrl-C to stop the process in the current buffer.

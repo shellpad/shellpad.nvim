@@ -27,7 +27,8 @@ local JumpDown = function(bufnr, at_last_line)
     end
   end)
 end
-local StartShell = function(opts)
+
+local genericStart = function(opts)
   local shell_command = opts.shell_command
   local buf = opts.buf
   local follow = opts.follow
@@ -103,6 +104,8 @@ end
 
 M.setup = function()
   local buf_info = {}
+  local last_win = nil
+  local last_buf = nil
 
   local StopShell = function(buf)
     local channel_id = buf_info[buf].channel_id
@@ -113,66 +116,100 @@ M.setup = function()
     end
   end
 
-  vim.api.nvim_create_user_command("Shell", function(opts)
-    local full_command = opts.fargs[1]
-    local shell_command = full_command
-    local on_exit = function() end
-    local follow = true
-    local words = vim.fn.split(full_command, " ")
+  local StartShell = function(parsed_command)
+      -- create new buffer
+      local buf = vim.api.nvim_create_buf(false, false)
+      vim.cmd.buffer(buf)
+      vim.cmd.setlocal("number")
+      last_win = vim.api.nvim_get_current_win()
+      last_buf = buf
 
+      local channel_id = genericStart({
+        follow = parsed_command.follow,
+        -- Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
+        shell_command = string.format([[
+        if [ -e "$HOME/.shellpad" ]; then
+          . "$HOME/.shellpad"
+        fi
+        %s
+        EXIT_CODE=$?
+        sleep 0.5s
+        exit $EXIT_CODE
+        ]], parsed_command.shell_command),
+        on_exit = parsed_command.on_exit,
+        buf = buf,
+      })
+
+      buf_info[buf] = {
+        channel_id = channel_id,
+        full_command = parsed_command.full_command,
+        shell_command = parsed_command.shell_command,
+      }
+      vim.api.nvim_create_autocmd({"BufHidden"}, {
+        buffer = buf,
+        callback = function()
+          StopShell(buf)
+        end,
+      })
+
+      vim.keymap.set('n', '<C-c>', function() StopShell(buf) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
+  end
+
+  local ParseCommand = function(full_command)
+    -- This is very basic parsing, but it should be enough for now.
+    local parsed_command = {
+      full_command = full_command,
+      shell_command = full_command,
+      on_exit = function() end,
+      follow = true,
+      action = "ACTION_START",
+    }
+    local words = vim.fn.split(parsed_command.full_command, " ")
     if words[1] == "--no-follow" then
-      follow = false
-      shell_command = table.concat(vim.list_slice(words, 2, #words), " ")
+      parsed_command.follow = false
+      parsed_command.shell_command = table.concat(vim.list_slice(words, 2, #words), " ")
     elseif words[1] == "--stop" then
-      local buf = vim.api.nvim_get_current_buf()
-      StopShell(buf)
-      return
+      parsed_command.action = "ACTION_STOP"
     elseif words[1] == "--edit" then
-      local buf = vim.api.nvim_get_current_buf()
-      vim.api.nvim_feedkeys(':Shell ' .. buf_info[buf].full_command, "n", true)
-      return
+      parsed_command.action = "ACTION_EDIT"
+    elseif words[1] == "--rerun-last" then
+      parsed_command.action = "ACTION_RERUN_LAST"
     elseif words[1] == "--lua" then
       local lua_command = table.concat(vim.list_slice(words, 2, #words), " ")
       local config = vim.fn.luaeval(lua_command) or {}
-      shell_command = config.command or ""
-      on_exit = config.on_exit or function() end
+      parsed_command.shell_command = config.command or ""
+      parsed_command.on_exit = config.on_exit or function() end
     end
+    return parsed_command
+  end
 
-    -- create new buffer
-    local buf = vim.api.nvim_create_buf(false, false)
+  vim.api.nvim_create_user_command("Shell", function(opts)
+    local parsed_command = ParseCommand(opts.fargs[1])
 
-    -- switch to the new buffer
-    vim.cmd.buffer(buf)
-    vim.cmd.setlocal("number")
+    if parsed_command.action == "ACTION_STOP" then
+      StopShell(parsed_command.buf)
+    elseif parsed_command.action == "ACTION_EDIT" then
+      vim.api.nvim_feedkeys(':Shell ' .. buf_info[parsed_command.buf].full_command, "n", true)
+    elseif parsed_command.action == "ACTION_RERUN_LAST" then
+      if last_win == nil then
+        return
+      end
+      local curr_win = vim.api.nvim_get_current_win()
+      if vim.api.nvim_win_is_valid(last_win) == false then
+        -- if win does not exist, create a new one
+        vim.cmd.vsplit()
+      else
+        vim.api.nvim_set_current_win(last_win)
+      end
+      parsed_command.full_command = buf_info[last_buf].full_command
+      parsed_command.shell_command = buf_info[last_buf].shell_command
+      StartShell(parsed_command)
 
-    local channel_id = StartShell({
-      follow = follow,
-      -- Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
-      shell_command = string.format([[
-      if [ -e "$HOME/.shellpad" ]; then
-        . "$HOME/.shellpad"
-      fi
-      %s
-      EXIT_CODE=$?
-      sleep 0.5s
-      exit $EXIT_CODE
-      ]], shell_command),
-      on_exit = on_exit,
-      buf = buf,
-    })
-
-    buf_info[buf] = {
-      channel_id = channel_id,
-      full_command = full_command,
-    }
-    vim.api.nvim_create_autocmd({"BufHidden"}, {
-      buffer = buf,
-      callback = function()
-        StopShell(buf)
-      end,
-    })
-
-    vim.keymap.set('n', '<C-c>', function() StopShell(buf) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
+      -- back to the current win
+      vim.api.nvim_set_current_win(curr_win)
+    elseif parsed_command.action == "ACTION_START" then
+      StartShell(parsed_command)
+    end
   end, { nargs = 1, complete = "file" })
 end
 
