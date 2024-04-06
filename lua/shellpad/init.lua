@@ -172,7 +172,7 @@ M.setup = function()
       parsed_command.action = "ACTION_STOP"
     elseif words[1] == "--edit" then
       parsed_command.action = "ACTION_EDIT"
-    elseif words[1] == "--rerun-last" then
+    elseif words[1] == "--last" then
       parsed_command.action = "ACTION_RERUN_LAST"
     elseif words[1] == "--lua" then
       local lua_command = table.concat(vim.list_slice(words, 2, #words), " ")
