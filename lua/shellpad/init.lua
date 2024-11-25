@@ -78,6 +78,8 @@ local genericStart = function(opts)
     end
   end
 
+  insert_output(buf, {"$ " .. opts.banner, ""})
+
   return vim.fn.jobstart(shell_command, {
     pty = false,
     detach = false,
@@ -136,6 +138,7 @@ M.setup = function()
         sleep 0.5s
         exit $EXIT_CODE
         ]], parsed_command.shell_command),
+        banner = parsed_command.shell_command,
         on_exit = parsed_command.on_exit,
         buf = buf,
       })

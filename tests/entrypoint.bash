@@ -8,13 +8,15 @@ set -x
 #   asciinema rec nvim.cast
 #   asciinema upload nvim.cast
 
+cmd='yes | nl -w1 -s "" | head -5 && sleep 1 && yes | nl -w1 -s "" | head -5'
 nvim --version
 nvim \
-  +'Shell yes | nl -w1 -s "" | head -5 && sleep 1 && yes | nl -w1 -s "" | head -5' \
+  +"Shell ${cmd}" \
   +'lua vim.defer_fn(function() vim.cmd.normal("kOHello") end, 500)' \
   +'lua vim.defer_fn(function() vim.cmd.normal("A world!") end, 1500)' \
   +'lua vim.defer_fn(function() vim.cmd("w got1 | q") end, 2000)'
-echo "1y
+echo "$ ${cmd}
+1y
 2y
 3y
 4y
