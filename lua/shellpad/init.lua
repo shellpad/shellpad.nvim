@@ -141,7 +141,7 @@ M.setup = function()
         sleep 0.5s
         exit $EXIT_CODE
         ]], parsed_command.shell_command),
-        banner = parsed_command.shell_command,
+        banner = parsed_command.full_command,
         on_exit = parsed_command.on_exit,
         buf = buf,
       })
