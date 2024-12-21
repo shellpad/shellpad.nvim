@@ -1,5 +1,7 @@
 local M = {}
 
+-- TODO: rename :Shell to :Shellpad
+
 -- This is based on https://github.com/Robitx/gp.nvim/commit/5ccf0d28c6fbc206ebd853a9a2f1b1ab9878cdab
 local undojoin = function(buf)
   if not buf or not vim.api.nvim_buf_is_loaded(buf) then
