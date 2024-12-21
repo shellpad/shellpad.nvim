@@ -15,7 +15,7 @@ nvim \
   +'lua vim.defer_fn(function() vim.cmd.normal("kOHello") end, 500)' \
   +'lua vim.defer_fn(function() vim.cmd.normal("A world!") end, 1500)' \
   +'lua vim.defer_fn(function() vim.cmd("w got1 | q") end, 2000)'
-echo "$ ${cmd}
+echo "${cmd}
 1y
 2y
 3y
