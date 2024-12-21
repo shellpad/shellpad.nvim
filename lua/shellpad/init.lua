@@ -81,7 +81,7 @@ local genericStart = function(opts)
   end
 
   -- TODO: add a flag for not showing the banner
-  insert_output(buf, {"$ " .. opts.banner, ""})
+  insert_output(buf, {opts.banner, ""})
 
   return vim.fn.jobstart(shell_command, {
     pty = false,
