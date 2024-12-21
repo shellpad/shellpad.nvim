@@ -15,6 +15,7 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 :lua vim.cmd('bo sp'); vim.cmd('Shell echo left'); vim.cmd.vsplit(); vim.cmd('Shell echo right')
 ```
 * Press Ctrl-C to stop the process in the current buffer.
+* Press Enter (in Normal Mode) on a line in a Shell buffer to run that line.
 
 ## Examples
 Search for files using rg:
