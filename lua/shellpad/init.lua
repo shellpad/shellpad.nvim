@@ -159,6 +159,14 @@ M.setup = function()
       })
 
       vim.keymap.set('n', '<C-c>', function() StopShell(buf) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
+      vim.keymap.set('n', '<CR>', function()
+        -- get current line:
+        local line = vim.api.nvim_get_current_line()
+        -- Start a new shell with the current line as the command
+        local command = string.format("Shell %s", line)
+        vim.cmd(command)
+        vim.fn.histadd("cmd", command)
+      end, { noremap = true, desc = "shellpad.nvim: Run command in current line", buffer = buf })
   end
 
   local ParseCommand = function(full_command)
