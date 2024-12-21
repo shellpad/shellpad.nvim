@@ -123,7 +123,7 @@ M.setup = function()
 
   local StartShell = function(parsed_command)
       -- create new buffer
-      local buf = vim.api.nvim_create_buf(false, false)
+      local buf = vim.api.nvim_create_buf(false, true)
       vim.cmd.buffer(buf)
       vim.cmd.setlocal("number")
       last_win = vim.api.nvim_get_current_win()
