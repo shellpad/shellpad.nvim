@@ -230,9 +230,10 @@ M.setup = function()
   vim.api.nvim_create_autocmd({"BufReadCmd"}, {
     pattern = "Shell://*",
     callback = function()
-      -- Get filename
+      -- Convert buffer to a scratch buffer
+      vim.cmd("setlocal buftype=nofile")
+
       local filename = vim.fn.expand("<afile>")
-      -- Remove the "Shell://" prefix
       local prefix_length = string.len("Shell://")
       local full_command = string.sub(filename, prefix_length + 1)
       vim.cmd(string.format("Shell %s", full_command))
