@@ -1,6 +1,7 @@
 local M = {}
 
 -- TODO: rename :Shell to :Shellpad
+-- TODO: This doesn't seem to work `:Shell rg -l .` or any other rg command.
 
 -- This is based on https://github.com/Robitx/gp.nvim/commit/5ccf0d28c6fbc206ebd853a9a2f1b1ab9878cdab
 local undojoin = function(buf)
