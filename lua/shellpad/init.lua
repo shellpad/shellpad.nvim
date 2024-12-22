@@ -226,6 +226,19 @@ M.setup = function()
       StartShell(parsed_command)
     end
   end, { nargs = 1, complete = "file" })
+
+  vim.api.nvim_create_autocmd({"BufReadCmd"}, {
+    pattern = "Shell://*",
+    callback = function()
+      -- Get filename
+      local filename = vim.fn.expand("<afile>")
+      -- Remove the "Shell://" prefix
+      local prefix_length = string.len("Shell://")
+      local full_command = string.sub(filename, prefix_length + 1)
+      vim.cmd(string.format("Shell %s", full_command))
+    end,
+    group = vim.api.nvim_create_augroup('shellpad', { clear = true }),
+  })
 end
 
 M.command_history = function(opts)

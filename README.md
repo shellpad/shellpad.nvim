@@ -14,6 +14,7 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 :Shell --lua {command='COMMAND', on_exit=function() end}
 :lua vim.cmd('bo sp'); vim.cmd('Shell echo left'); vim.cmd.vsplit(); vim.cmd('Shell echo right')
 ```
+* `nvim 'Shell://COMMAND'`
 * `nvim +'Shell COMMAND'`
 * Press Ctrl-C to stop the process in the current buffer.
 * Press Enter (in Normal Mode) on a line in a Shell buffer to run that line.
@@ -99,6 +100,7 @@ But there are situations when running a command inside NeoVim is more convenient
 - :Shell process is stopped when the buffer window is closed. :term processes keep running even when the window is closed, because the buffer still exists. 
 - :term and jobstart have a bug where the process output is truncated (see https://github.com/neovim/neovim/issues/26543). :Shell provides a workaround by simply sleeping for 0.5s. This is good enough for most usecases until the bug is resolved unpstream. 
 - :term buffers are not modifiable by default. You can process :Shell buffers with other commands like :%!sort | uniq -c | sort. If you want to do that with :term, you will need to make the buffer modifiable, and remove the empty lines. Furthermore, the :term output is wrapped to the current window width, so the output is just unreliable.
+- Not a difference but worth mentioning: Both :term and :Shell can run commands from terminal using term://COMMAND and Shell://COMMAND.
 
 The most important thing I need from :term to use it more is to allow setting the width of the pty, instead of getting the width from the current window.
 
