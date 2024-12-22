@@ -14,6 +14,7 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 :Shell --lua {command='COMMAND', on_exit=function() end}
 :lua vim.cmd('bo sp'); vim.cmd('Shell echo left'); vim.cmd.vsplit(); vim.cmd('Shell echo right')
 ```
+* `nvim +'Shell COMMAND'`
 * Press Ctrl-C to stop the process in the current buffer.
 * Press Enter (in Normal Mode) on a line in a Shell buffer to run that line.
 
