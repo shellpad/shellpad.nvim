@@ -176,12 +176,15 @@ M.setup = function()
       full_command = full_command,
       shell_command = full_command,
       on_exit = function() end,
-      follow = true,
+      follow = false,
       action = "ACTION_START",
     }
     local words = vim.fn.split(parsed_command.full_command, " ")
     if words[1] == "--no-follow" then
       parsed_command.follow = false
+      parsed_command.shell_command = table.concat(vim.list_slice(words, 2, #words), " ")
+    elseif words[1] == "--follow" then
+      parsed_command.follow = true
       parsed_command.shell_command = table.concat(vim.list_slice(words, 2, #words), " ")
     elseif words[1] == "--stop" then
       parsed_command.action = "ACTION_STOP"

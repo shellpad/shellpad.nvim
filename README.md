@@ -7,7 +7,7 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 ## Usage
 ```
 :Shell COMMAND
-:Shell --no-follow COMMAND
+:Shell --follow COMMAND
 :Shell --stop
 :Shell --edit
 :Shell --last
