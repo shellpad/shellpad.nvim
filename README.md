@@ -2,8 +2,6 @@
 
 Adds the :Shell command for running shell commands without a pty in a scratch buffer.
 
-[![asciicast](https://github.com/siadat/public/blob/main/648354.gif?raw=true)](https://asciinema.org/a/QOXhP4cC2XejW90rnWX6OvlHf)
-
 ## Usage
 ```
 :Shell COMMAND
