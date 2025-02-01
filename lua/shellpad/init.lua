@@ -38,6 +38,10 @@ local genericStart = function(opts)
   local on_exit_cb = opts.on_exit
 
   local output_prefix = ""
+  M.hl_clear_matchers(buf, "shellpad")
+  M.hl_add_matcher(buf, "shellpad_modeline", 0, "^shellpad: .\\+", "#666666", "NONE")
+
+  local modeline_counter = 0
   local insert_output = function(bufnr, data)
     undojoin(bufnr)
     -- check if bufnr still exists
@@ -68,10 +72,25 @@ local genericStart = function(opts)
     local first_line = last_lines[1] .. data[1]
 
     -- append (last item may be a partial line, until EOF)
-    vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, vim.list_extend(
+    local lines = vim.list_extend(
       {first_line},
       vim.list_slice(data, 2, #data)
-    ))
+    )
+    vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, lines)
+
+    -- check for lines matching "^shellpad: "
+    for i,line in ipairs(lines) do
+      local captured_modeline = string.match(line, "^shellpad: (.+)")
+      if captured_modeline then
+        modeline_counter = modeline_counter + 1
+        print("Found shellpad line: " .. vim.inspect(captured_modeline))
+        local matcher_yaml_std = string.sub(captured_modeline, 11)
+        print("Found shellpad line: " .. vim.inspect(matcher_yaml_std))
+        local matcher_json_str = vim.fn.system("yq -o json", matcher_yaml_std)
+        local m = vim.fn.json_decode(matcher_json_str)
+        M.hl_add_matcher(bufnr, string.format("rule%s", modeline_counter), modeline_counter, m.re, m.fg, m.bg)
+      end
+    end
 
     vim.api.nvim_buf_set_option(bufnr, 'modified', false)
 
@@ -108,7 +127,7 @@ local genericStart = function(opts)
   })
 end
 
-M.setup = function()
+M.setup = function(_)
   local buf_info = {}
   local last_win = nil
   local last_buf = nil
@@ -317,6 +336,34 @@ M.telescope_history_search = function()
   return function()
     M.command_history({sorter = preserve_order_fuzzy_sorter()})
   end
+end
+
+-- Function to clear syntax groups and matches with a specific prefix
+M.hl_clear_matchers = function(bufnr, prefix)
+  -- Get all current syntax groups
+  local syntax_groups = vim.fn.getcompletion(prefix, 'highlight')
+  vim.api.nvim_buf_call(bufnr, function()
+    for _, group in ipairs(syntax_groups) do
+      vim.cmd('syntax clear ' .. group)
+    end
+
+    -- Clear matches added with `matchadd` (no specific prefix tracking, so reset all)
+    vim.cmd('call clearmatches()')
+  end)
+
+end
+
+M.hl_add_matcher = function(bufnr, name, priority, re, fg, bg)
+  local syntaxName = string.format('shellpad%sSyntax', name)
+  local highlightName = string.format('shellpad%sHighlight', name)
+  vim.api.nvim_buf_call(bufnr, function()
+    vim.cmd(string.format('highlight %s guifg=%s guibg=%s', highlightName, fg, bg))
+    vim.cmd(string.format([[
+      syntax match %s /%s/
+      highlight link %s %s
+    ]], syntaxName, re, syntaxName, highlightName))
+    vim.fn.matchadd(highlightName, re, priority)
+  end)
 end
 
 return M
