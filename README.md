@@ -17,7 +17,23 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 * Press Ctrl-C to stop the process in the current buffer.
 * Press Enter (in Normal Mode) on a line in a Shell buffer to run that line.
 
-## Examples
+
+### Syntax Highlighting (beta)
+
+You can highlight parts of the output of the command if the output of the command a line that matches the following example:
+```
+shellpad: highlight {re: "...", fg: "...", bg: "..."}
+```
+
+For example, running `:Shell make test-highlight` will highlight all IP addresses in the output of the ping command:
+```
+test-highlight:
+	@echo 'shellpad: highlight {re: "\\(\\d\\+\\.\\)\\{3\\}\\d\\+", fg: "#66aa66", bg: "NONE"}'
+	ping -c 3 -i 0.1 8.8.8.8
+```
+
+
+## Examples Usages
 Search for files using rg:
 ```
 :Shell rg -n pattern .
