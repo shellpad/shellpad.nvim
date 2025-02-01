@@ -163,6 +163,9 @@ M.setup = function()
       vim.keymap.set('n', '<CR>', function()
         -- get current line:
         local line = vim.api.nvim_get_current_line()
+        if line == "" then
+          return
+        end
         -- Start a new shell with the current line as the command
         local command = string.format("Shell %s", line)
         vim.cmd(command)
