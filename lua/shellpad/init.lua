@@ -83,9 +83,7 @@ local genericStart = function(opts)
       local captured_modeline = string.match(line, "^shellpad: (.+)")
       if captured_modeline then
         modeline_counter = modeline_counter + 1
-        print("Found shellpad line: " .. vim.inspect(captured_modeline))
         local matcher_yaml_std = string.sub(captured_modeline, 11)
-        print("Found shellpad line: " .. vim.inspect(matcher_yaml_std))
         local matcher_json_str = vim.fn.system("yq -o json", matcher_yaml_std)
         local m = vim.fn.json_decode(matcher_json_str)
         M.hl_add_matcher(bufnr, string.format("rule%s", modeline_counter), modeline_counter, m.re, m.fg, m.bg)
