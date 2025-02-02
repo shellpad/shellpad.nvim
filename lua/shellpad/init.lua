@@ -42,7 +42,7 @@ local genericStart = function(opts)
   M.hl_add_matcher(buf, "shellpad_modeline", 0, "^shellpad: .\\+", "#666666", "NONE")
 
   local modeline_counter = 0
-  local insert_output = function(bufnr, data)
+  local insert_output = function(bufnr, fd, data)
     undojoin(bufnr)
     -- check if bufnr still exists
     if vim.api.nvim_buf_is_loaded(bufnr) == false then
@@ -78,6 +78,12 @@ local genericStart = function(opts)
     )
     vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, lines)
 
+    if fd == 2 then
+      for i,_ in ipairs(lines) do
+        vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_stderr", vim.api.nvim_buf_line_count(bufnr) - #lines + i - 1, 0, -1)
+      end
+    end
+
     -- check for lines matching "^shellpad: "
     for i,line in ipairs(lines) do
       local captured_modeline = string.match(line, "^shellpad: (.+)")
@@ -99,7 +105,7 @@ local genericStart = function(opts)
   end
 
   -- TODO: add a flag for not showing the banner
-  insert_output(buf, {opts.banner, ""})
+  insert_output(buf, 1, {opts.banner, ""})
 
   return vim.fn.jobstart(shell_command, {
     pty = false,
@@ -108,18 +114,18 @@ local genericStart = function(opts)
     stderr_buffered = false,
 
     on_stdout = function(_, data)
-      insert_output(buf, data)
+      insert_output(buf, 1, data)
     end,
 
     on_stderr = function(_, data)
-      insert_output(buf, data)
+      insert_output(buf, 2, data)
     end,
 
     on_exit = function(_, code)
       local exit_lines = {
         string.format("[Process exited with code %d]", code),
       }
-      insert_output(buf, exit_lines)
+      insert_output(buf, 1, exit_lines)
       on_exit_cb()
     end
   })
@@ -344,16 +350,19 @@ M.hl_clear_matchers = function(bufnr, prefix)
     for _, group in ipairs(syntax_groups) do
       vim.cmd('syntax clear ' .. group)
     end
-
     -- Clear matches added with `matchadd` (no specific prefix tracking, so reset all)
     vim.cmd('call clearmatches()')
   end)
 
+  -- Add a default stderr highlight
+  vim.api.nvim_buf_call(bufnr, function()
+    vim.api.nvim_set_hl(0, "shellpad_stderr", { bg = "#382828" })
+  end)
 end
 
 M.hl_add_matcher = function(bufnr, name, priority, re, fg, bg)
-  local syntaxName = string.format('shellpad%sSyntax', name)
-  local highlightName = string.format('shellpad%sHighlight', name)
+  local syntaxName = string.format('shellpad_%sSyntax', name)
+  local highlightName = string.format('shellpad_%sHighlight', name)
   vim.api.nvim_buf_call(bufnr, function()
     vim.cmd(string.format('highlight %s guifg=%s guibg=%s', highlightName, fg, bg))
     vim.cmd(string.format([[
