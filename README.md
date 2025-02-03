@@ -2,8 +2,7 @@
 
 Adds the :Shell command for running shell commands without a pty in a scratch buffer.
 
-https://github.com/siadat/public/blob/main/shellpad.nvim.png
-![Shellpad.nvim screenshot](https://github.com/siadat/public/blob/main/shellpad.nvim.png)
+![Shellpad.nvim screenshot](https://raw.githubusercontent.com/siadat/public/master/shellpad.nvim.png)
 
 
 ## Usage
