@@ -85,7 +85,8 @@ local genericStart = function(opts)
     end
 
     -- check for lines matching "^shellpad: "
-    for i,line in ipairs(lines) do
+    -- TODO: move this to vim.api.nvim_create_autocmd? But I guess this is more efficient
+    for _,line in ipairs(lines) do
       local captured_modeline = string.match(line, "^shellpad: (.+)")
       if captured_modeline then
         modeline_counter = modeline_counter + 1
@@ -179,6 +180,15 @@ M.setup = function(_)
         buffer = buf,
         callback = function()
           StopShell(buf)
+        end,
+      })
+
+      local commandline_hl_ns = vim.api.nvim_create_namespace('shellpad_commandline')
+      vim.api.nvim_create_autocmd({"BufEnter", "TextChanged", "TextChangedI"}, {
+        buffer = buf,
+        callback = function()
+          vim.api.nvim_buf_clear_namespace(buf, commandline_hl_ns, 0, 1)
+          vim.api.nvim_buf_add_highlight(buf, commandline_hl_ns, "shellpad_commandline", 0, 0, -1)
         end,
       })
 
@@ -354,9 +364,10 @@ M.hl_clear_matchers = function(bufnr, prefix)
     vim.cmd('call clearmatches()')
   end)
 
-  -- Add a default stderr highlight
+  -- Add the default highlights
   vim.api.nvim_buf_call(bufnr, function()
     vim.api.nvim_set_hl(0, "shellpad_stderr", { bg = "#382828" })
+    vim.api.nvim_set_hl(0, 'shellpad_commandline', { bg = "#282c34", fg = "#61afef", bold = true })
   end)
 end
 
