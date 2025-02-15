@@ -36,7 +36,8 @@ local genericStart = function(opts)
 
   local output_prefix = ""
   M.hl_clear_matchers(buf, "shellpad")
-  M.hl_add_matcher(buf, "shellpad_modeline", 0, "^shellpad: .\\+", "#666666", "NONE")
+  -- NOTE: This is commented out because it slows down Neovim when output is very large
+  -- M.hl_add_matcher(buf, "shellpad_modeline", 0, "^shellpad: .\\+", "#666666", "NONE")
 
   local modeline_counter = 0
   local insert_output = function(bufnr, fd, data)
