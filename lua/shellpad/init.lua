@@ -244,6 +244,7 @@ M.setup = function(_)
   end
 
   vim.api.nvim_create_user_command("Shell", function(opts)
+    -- TODO: the backslashes in the command we receive from Neovim's commandline are unfortunately removed, e.g. you cannot run `find -exec echo {} \;`
     local parsed_command = ParseCommand(opts.fargs[1])
 
     if parsed_command.action == "ACTION_STOP" then
