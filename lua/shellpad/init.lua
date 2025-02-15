@@ -244,7 +244,6 @@ M.setup = function(_)
   end
 
   vim.api.nvim_create_user_command("Shell", function(opts)
-    -- TODO: the backslashes in the command we receive from Neovim's commandline are unfortunately removed, e.g. you cannot run `find -exec echo {} \;`
     local parsed_command = ParseCommand(opts.fargs[1])
 
     if parsed_command.action == "ACTION_STOP" then
@@ -271,7 +270,7 @@ M.setup = function(_)
     elseif parsed_command.action == "ACTION_START" then
       StartShell(parsed_command)
     end
-  end, { nargs = 1, complete = "file" })
+  end, { nargs = 1 }) -- NOTE: removed "file" because it was removing the backslashes
 
   vim.api.nvim_create_autocmd({"BufReadCmd"}, {
     pattern = "Shell://*",
