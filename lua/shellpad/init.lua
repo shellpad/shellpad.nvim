@@ -157,6 +157,9 @@ M.setup = function(_)
       last_win = vim.api.nvim_get_current_win()
       last_buf = buf
 
+      local tmpfile = vim.fn.tempname()
+      vim.fn.writefile({parsed_command.shell_command}, tmpfile)
+
       local channel_id = genericStart({
         follow = parsed_command.follow,
         -- Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
@@ -164,11 +167,11 @@ M.setup = function(_)
         if [ -e "$HOME/.shellpad" ]; then
           . "$HOME/.shellpad"
         fi
-        %s
+        . %s
         EXIT_CODE=$?
         sleep 0.5s
         exit $EXIT_CODE
-        ]], parsed_command.shell_command),
+        ]], tmpfile),
         banner = parsed_command.full_command,
         on_exit = parsed_command.on_exit,
         buf = buf,
