@@ -8,13 +8,15 @@ local undojoin = function(buf)
   if not buf or not vim.api.nvim_buf_is_loaded(buf) then
     return
   end
-  local status, result = pcall(vim.cmd.undojoin)
-  if not status then
-    if result:match("E790") then
-      return
+  vim.api.nvim_buf_call(buf, function()
+    local status, result = pcall(vim.cmd.undojoin)
+    if not status then
+      if result:match("E790") then
+        return
+      end
+      M.error("Error running undojoin: " .. vim.inspect(result))
     end
-    M.error("Error running undojoin: " .. vim.inspect(result))
-  end
+  end)
 end
 
 local JumpDown = function(bufnr, at_last_line)
