@@ -77,9 +77,11 @@ local genericStart = function(opts)
     vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, lines)
 
     local number_of_lines = vim.api.nvim_buf_line_count(bufnr)
-    if fd == 2 then
-      for i,_ in ipairs(lines) do
+    for i,_ in ipairs(lines) do
+      if fd == 2 then
         vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_stderr", number_of_lines - #lines + i - 1, 0, -1)
+      elseif string.match(lines[i], "^shellpad: ") then
+        vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_modeline", number_of_lines - #lines + i - 1, 0, -1)
       end
     end
 
@@ -374,6 +376,7 @@ M.hl_clear_matchers = function(bufnr, prefix)
   -- Add the default highlights
   vim.api.nvim_buf_call(bufnr, function()
     vim.api.nvim_set_hl(0, "shellpad_stderr", { bg = "#382828" })
+    vim.api.nvim_set_hl(0, "shellpad_modeline", { bg = "NONE", fg = "#666666" })
     vim.api.nvim_set_hl(0, 'shellpad_commandline', { bg = "#282c34", fg = "#61afef", bold = true })
   end)
 end
