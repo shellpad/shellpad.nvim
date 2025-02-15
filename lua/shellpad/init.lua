@@ -19,16 +19,11 @@ local undojoin = function(buf)
   end)
 end
 
-local JumpDown = function(bufnr, at_last_line)
+local JumpDown = function(bufnr)
   local curr_buf = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_call(bufnr, function()
     if bufnr ~= curr_buf or vim.api.nvim_get_mode().mode ~= 'i' then
-      if at_last_line then
-        -- only follow the output if the cursor is at the end of the buffer
-        -- this allows users to navigate the buffer without being interrupted
-        -- and follow the output again by going to the last line.
-        vim.cmd('keepjumps normal! G')
-      end
+      vim.cmd('keepjumps normal! G')
     end
   end)
 end
@@ -80,9 +75,10 @@ local genericStart = function(opts)
     )
     vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, lines)
 
+    local number_of_lines = vim.api.nvim_buf_line_count(bufnr)
     if fd == 2 then
       for i,_ in ipairs(lines) do
-        vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_stderr", vim.api.nvim_buf_line_count(bufnr) - #lines + i - 1, 0, -1)
+        vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_stderr", number_of_lines - #lines + i - 1, 0, -1)
       end
     end
 
@@ -101,9 +97,14 @@ local genericStart = function(opts)
 
     vim.api.nvim_buf_set_option(bufnr, 'modified', false)
 
-    -- make sure the end of the buffer is visible:
-    if follow then
-      JumpDown(bufnr, at_last_line)
+    if at_last_line and (follow or number_of_lines > 2) then
+      -- Only follow the output if the cursor is at the end of the buffer
+      -- this allows users to navigate the buffer without being interrupted
+      -- and follow the output again by going to the last line.
+      --
+      -- Also, only follow if the buffer has more than 2 lines, to avoid
+      -- following the output at the start by default.
+      JumpDown(bufnr)
     end
   end
 
