@@ -148,7 +148,7 @@ M.setup = function(_)
     if channel_id ~= nil then
       vim.fn.jobstop(channel_id)
       buf_info[buf].channel_id = nil
-      JumpDown(buf, true)
+      JumpDown(buf)
     end
   end
 
@@ -176,7 +176,10 @@ M.setup = function(_)
         exit $EXIT_CODE
         ]], tmpfile),
         banner = parsed_command.full_command,
-        on_exit = parsed_command.on_exit,
+        on_exit = function()
+          buf_info[buf].channel_id = nil
+          parsed_command.on_exit()
+        end,
         buf = buf,
       })
 
