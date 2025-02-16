@@ -193,11 +193,17 @@ M.setup = function(_)
       })
 
       local commandline_hl_ns = vim.api.nvim_create_namespace('shellpad_commandline')
-      vim.api.nvim_create_autocmd({"BufEnter", "TextChanged", "TextChangedI"}, {
+
+      local highlight_basics = function(buf)
+        vim.api.nvim_buf_clear_namespace(buf, commandline_hl_ns, 0, 1)
+        vim.api.nvim_buf_add_highlight(buf, commandline_hl_ns, "shellpad_commandline", 0, 0, -1)
+      end
+
+      highlight_basics(buf)
+      vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI"}, {
         buffer = buf,
         callback = function()
-          vim.api.nvim_buf_clear_namespace(buf, commandline_hl_ns, 0, 1)
-          vim.api.nvim_buf_add_highlight(buf, commandline_hl_ns, "shellpad_commandline", 0, 0, -1)
+          highlight_basics(buf)
         end,
       })
 
