@@ -2,6 +2,8 @@ local M = {}
 
 -- TODO: rename :Shell to :Shellpad
 -- TODO: This doesn't seem to work `:Shell rg -l .` or any other rg command.
+-- TODO: idea: allow defining custom key mappings in the buffer, e.g. pressing `<cr>` or `k` in a line in the output of `ps` could kill the process.
+--       But I wouldn't want to define than mapping each time. Maybe a global command-to-mapping matcher?
 
 -- This is based on https://github.com/Robitx/gp.nvim/commit/5ccf0d28c6fbc206ebd853a9a2f1b1ab9878cdab
 local undojoin = function(buf)
