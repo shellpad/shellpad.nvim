@@ -174,7 +174,9 @@ M.setup = function(_)
         shell_command = string.format([[
         # TODO: document .shellpad.yaml in README
         if [ -e "$HOME/.shellpad.yaml" ]; then
-          source <(cat ~/.shellpad.yaml | yq .shellrc)
+          tmp_shellrc=$(mktemp)
+          cat ~/.shellpad.yaml | yq .shellrc > $tmp_shellrc
+          source $tmp_shellrc
         fi
         . %s
         EXIT_CODE=$?
