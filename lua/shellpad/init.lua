@@ -94,11 +94,13 @@ local genericStart = function(opts)
     for _,line in ipairs(lines) do
       local captured_modeline = string.match(line, "^shellpad: (.+)")
       if captured_modeline then
-        modeline_counter = modeline_counter + 1
-        local matcher_yaml_std = string.sub(captured_modeline, 11)
-        local matcher_json_str = vim.fn.system("yq -o json", matcher_yaml_std)
-        local m = vim.fn.json_decode(matcher_json_str)
-        M.hl_add_matcher(bufnr, string.format("rule%s", modeline_counter), modeline_counter, m.re, m.fg, m.bg)
+        if string.sub(captured_modeline, 1, #"highlight {") == "highlight {" then
+          modeline_counter = modeline_counter + 1
+          local matcher_yaml_std = string.sub(captured_modeline, #"highlight {")
+          local matcher_json_str = vim.fn.system("yq -o json", matcher_yaml_std)
+          local m = vim.fn.json_decode(matcher_json_str)
+          M.hl_add_matcher(bufnr, string.format("rule%s", modeline_counter), modeline_counter, m.re, m.fg, m.bg)
+        end
       end
     end
 
