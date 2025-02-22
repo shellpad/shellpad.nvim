@@ -169,13 +169,14 @@ M.setup = function(_)
 
       local channel_id = genericStart({
         follow = parsed_command.follow,
-        -- Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
         shell_command = string.format([[
-        if [ -e "$HOME/.shellpad" ]; then
-          . "$HOME/.shellpad"
+        # TODO: document .shellpad.yaml in README
+        if [ -e "$HOME/.shellpad.yaml" ]; then
+          source <(cat ~/.shellpad.yaml | yq .shellrc)
         fi
         . %s
         EXIT_CODE=$?
+        # Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
         sleep 0.5s
         exit $EXIT_CODE
         ]], tmpfile),
