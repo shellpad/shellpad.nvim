@@ -235,6 +235,16 @@ M.setup = function(_)
         vim.cmd(command)
         vim.fn.histadd("cmd", command)
       end, { noremap = true, desc = "shellpad.nvim: Run command in current line", buffer = buf })
+
+      vim.keymap.set('v', '<CR>', function()
+        vim.cmd('normal! "vy') -- Yank selection into the "v register
+        local full_command = vim.fn.getreg('v')
+        full_command = string.gsub(full_command, "\n", " ")
+
+        local command = string.format("Shell %s", full_command)
+        vim.cmd(command)
+        vim.fn.histadd("cmd", command)
+      end, { noremap = true, desc = "shellpad.nvim: Run command visually selected", buffer = buf })
   end
 
   local ParseCommand = function(full_command)

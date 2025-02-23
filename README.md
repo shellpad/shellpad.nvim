@@ -19,6 +19,7 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 * `nvim +'Shell COMMAND'`
 * Press Ctrl-C to stop the process in the current buffer.
 * Press Enter (in Normal Mode) on a line in a Shell buffer to run that line.
+* Visually select a range anywhere in the buffer and press Enter to run the selected lines as one command.
 
 
 ### Syntax Highlighting (beta)
