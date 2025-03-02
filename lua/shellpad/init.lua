@@ -45,7 +45,7 @@ local genericStart = function(opts)
 
   local modeline_counter = 0
   local insert_output = function(bufnr, fd, data)
-    undojoin(bufnr)
+    -- undojoin(bufnr) -- I don't need to mess with the undo history, it is already good
     -- check if bufnr still exists
     if vim.api.nvim_buf_is_loaded(bufnr) == false then
       return
