@@ -167,19 +167,26 @@ M.setup = function(_)
       last_buf = buf
 
       local tmpfile = vim.fn.tempname()
-      vim.fn.writefile({parsed_command.shell_command}, tmpfile)
+
+      -- Read $HOME/shellpad.lua and save it to a temporary file
+      local shellpad_config_path = vim.fn.expand("$HOME") .. "/shellpad.lua"
+
+      if vim.fn.filereadable(shellpad_config_path) == 1 then
+        local shellpad_lua_config = dofile(shellpad_config_path)
+        local shellrc = shellpad_lua_config.shellrc
+        local shellrc_lines = vim.split(shellrc, "\n", { plain = true })
+        vim.fn.writefile(shellrc_lines , tmpfile)
+      end
+
+      vim.fn.writefile({parsed_command.shell_command}, tmpfile, "a")
 
       local channel_id = genericStart({
         follow = parsed_command.follow,
         shell_command = string.format([[
-        # TODO: document .shellpad.yaml in README
-        if [ -e "$HOME/.shellpad.yaml" ]; then
-          tmp_shellrc=$(mktemp)
-          cat ~/.shellpad.yaml | yq .shellrc > $tmp_shellrc
-          source $tmp_shellrc
-        fi
+        # Run the command:
         . %s
         EXIT_CODE=$?
+
         # Sleep a little after the command, until https://github.com/neovim/neovim/issues/26543 is fixed
         sleep 0.5s
         exit $EXIT_CODE
