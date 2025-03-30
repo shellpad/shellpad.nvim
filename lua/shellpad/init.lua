@@ -7,22 +7,6 @@ local M = {}
 --       displaying different columns, so building a general purpose `ps` matcher is not trivial.
 --       Perhaps one way to do that is to declare a new command and pass the selected line(s) to it.
 
--- This is based on https://github.com/Robitx/gp.nvim/commit/5ccf0d28c6fbc206ebd853a9a2f1b1ab9878cdab
-local undojoin = function(buf)
-  if not buf or not vim.api.nvim_buf_is_loaded(buf) then
-    return
-  end
-  vim.api.nvim_buf_call(buf, function()
-    local status, result = pcall(vim.cmd.undojoin)
-    if not status then
-      if result:match("E790") then
-        return
-      end
-      M.error("Error running undojoin: " .. vim.inspect(result))
-    end
-  end)
-end
-
 local JumpDown = function(bufnr)
   local curr_buf = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_call(bufnr, function()
@@ -45,8 +29,6 @@ local genericStart = function(opts)
 
   local modeline_counter = 0
   local insert_output = function(bufnr, fd, data)
-    -- undojoin(bufnr) -- I don't need to mess with the undo history, it is already good
-    -- check if bufnr still exists
     if vim.api.nvim_buf_is_loaded(bufnr) == false then
       return
     end
@@ -213,9 +195,9 @@ M.setup = function(_)
 
       local commandline_hl_ns = vim.api.nvim_create_namespace('shellpad_commandline')
 
-      local highlight_basics = function(buf)
-        vim.api.nvim_buf_clear_namespace(buf, commandline_hl_ns, 0, 1)
-        vim.api.nvim_buf_add_highlight(buf, commandline_hl_ns, "shellpad_commandline", 0, 0, -1)
+      local highlight_basics = function(bfr)
+        vim.api.nvim_buf_clear_namespace(bfr, commandline_hl_ns, 0, 1)
+        vim.api.nvim_buf_add_highlight(bfr, commandline_hl_ns, "shellpad_commandline", 0, 0, -1)
       end
 
       highlight_basics(buf)
