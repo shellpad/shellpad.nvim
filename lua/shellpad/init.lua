@@ -298,13 +298,14 @@ M.setup = function(_)
 
   vim.api.nvim_create_autocmd({"BufReadCmd"}, {
     pattern = "Shell://*",
-    callback = function()
-      -- Convert buffer to a scratch buffer
-      vim.cmd("setlocal buftype=nofile")
+    callback = function(event)
+      -- a buffer is created later by StartShell(), so delete event.buf
+      vim.api.nvim_buf_delete(event.buf, { force = true })
 
-      local filename = vim.fn.expand("<afile>")
+      local filename = event.file
       local prefix_length = string.len("Shell://")
       local full_command = string.sub(filename, prefix_length + 1)
+
       vim.cmd(string.format("Shell %s", full_command))
     end,
     group = vim.api.nvim_create_augroup('shellpad', { clear = true }),
