@@ -1,5 +1,7 @@
 # 📜 shellpad.nvim
 
+[![Test Status](https://github.com/shellpad/shellpad.nvim/actions/workflows/test.yml/badge.svg)](https://github.com/shellpad/shellpad.nvim/actions/workflows/test.yml)
+
 Adds the :Shell command for running shell commands without a pty in a scratch buffer.
 
 ![Shellpad.nvim screenshot](https://raw.githubusercontent.com/siadat/public/master/shellpad.nvim.png)
