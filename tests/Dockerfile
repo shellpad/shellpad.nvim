@@ -1,6 +1,6 @@
-FROM ubuntu:24.10
+FROM ubuntu:25.10
 
-ENV NVIM_VERSION=v0.9.5
+ENV NVIM_VERSION=v0.11.4
 ARG PLUGIN_NAME
 
 RUN apt-get update
@@ -11,9 +11,11 @@ RUN apt-get update
 RUN apt-get install -y wget git asciinema inetutils-ping
 
 WORKDIR /work
-RUN wget https://github.com/neovim/neovim/releases/download/$NVIM_VERSION/nvim-linux64.tar.gz
-RUN tar xvzf nvim-linux64.tar.gz
-ENV PATH="/work/nvim-linux64/bin:${PATH}"
+# nvim 0.11 renamed the linux tarball from nvim-linux64.tar.gz to
+# nvim-linux-x86_64.tar.gz, and the extracted directory follows the same name.
+RUN wget https://github.com/neovim/neovim/releases/download/$NVIM_VERSION/nvim-linux-x86_64.tar.gz
+RUN tar xvzf nvim-linux-x86_64.tar.gz
+ENV PATH="/work/nvim-linux-x86_64/bin:${PATH}"
 
 COPY . /work/src/nvim-plugins/$PLUGIN_NAME
 COPY tests/entrypoint.bash /work/entrypoint.bash

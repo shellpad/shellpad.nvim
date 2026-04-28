@@ -32,92 +32,110 @@ end
 --   StopShell (Ctrl-C, BufHidden) deliberately does NOT mark the command
 --   as abandoned, so the "[Process exited]" message still appears when the
 --   user stops a command manually.
+-- opts.output_sink (optional): function(fd, data)
+--   When provided, all output (banner if any, stdout, stderr, and the final
+--   "[Process exited with code N]" line) is forwarded to this callback
+--   instead of being written into opts.buf as buffer text. fd is 1 for
+--   stdout-style writes, 2 for stderr. The notebook flow uses this to
+--   render output into extmark virt_lines, leaving the buffer text alone.
+--
+--   When omitted, the legacy behavior runs: output is appended to opts.buf
+--   as real text, the "shellpad: highlight {...}" modeline rules are
+--   honored, and the cursor follows the tail when at end-of-buffer.
 local genericStart = function(opts)
   local shell_command = opts.shell_command
   local buf = opts.buf
   local follow = opts.follow
   local on_exit_cb = opts.on_exit
   local is_command_abandoned = opts.is_command_abandoned or function() return false end
+  local output_sink = opts.output_sink
 
-  local output_prefix = ""
-  M.hl_clear_matchers(buf, "shellpad")
-  -- NOTE: This is commented out because it slows down Neovim when output is very large
-  -- M.hl_add_matcher(buf, "shellpad_modeline", 0, "^shellpad: .\\+", "#666666", "NONE")
+  if output_sink == nil then
+    local output_prefix = ""
+    M.hl_clear_matchers(buf, "shellpad")
+    -- NOTE: This is commented out because it slows down Neovim when output is very large
+    -- M.hl_add_matcher(buf, "shellpad_modeline", 0, "^shellpad: .\\+", "#666666", "NONE")
 
-  local modeline_counter = 0
-  local insert_output = function(bufnr, fd, data)
-    if vim.api.nvim_buf_is_loaded(bufnr) == false then
-      return
-    end
-
-    local at_last_line = false
-    -- NOTE: if we don't use nvim_buf_call(), we
-    -- get the current position of the cursor in
-    -- the current buffer, which might be different
-    -- from the buffer we are writing to.
-    vim.api.nvim_buf_call(bufnr, function()
-      at_last_line = vim.fn.line('.') == vim.fn.line('$')
-    end)
-
-    for i,line in ipairs(data) do
-      -- when printing binary bytes, the stderr or stdout might
-      -- include \n, which is not splitted by vim. This might be
-      -- a NeoVim bug, but to be fair, nothing was printed for
-      -- those strange bytes when the command was run in the
-      -- terminal outside NeoVim.
-      data[i] = output_prefix .. string.gsub(line, "\n", "\\n")
-    end
-
-    local last_lines = vim.api.nvim_buf_get_lines(bufnr, -2, -1, false)
-    -- complete the previous line (see channel.txt)
-    local first_line = last_lines[1] .. data[1]
-
-    -- append (last item may be a partial line, until EOF)
-    local lines = vim.list_extend(
-      {first_line},
-      vim.list_slice(data, 2, #data)
-    )
-    vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, lines)
-
-    local number_of_lines = vim.api.nvim_buf_line_count(bufnr)
-    for i,_ in ipairs(lines) do
-      if fd == 2 then
-        vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_stderr", number_of_lines - #lines + i - 1, 0, -1)
-      elseif string.match(lines[i], "^shellpad: ") then
-        vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_modeline", number_of_lines - #lines + i - 1, 0, -1)
+    local modeline_counter = 0
+    local insert_output = function(bufnr, fd, data)
+      if vim.api.nvim_buf_is_loaded(bufnr) == false then
+        return
       end
-    end
 
-    -- check for lines matching "^shellpad: "
-    -- TODO: move this to vim.api.nvim_create_autocmd? But I guess this is more efficient
-    for _,line in ipairs(lines) do
-      local captured_modeline = string.match(line, "^shellpad: (.+)")
-      if captured_modeline then
-        if string.sub(captured_modeline, 1, #"highlight {") == "highlight {" then
-          modeline_counter = modeline_counter + 1
-          local matcher_yaml_std = string.sub(captured_modeline, #"highlight {")
-          local matcher_json_str = vim.fn.system("yq -o json", matcher_yaml_std)
-          local m = vim.fn.json_decode(matcher_json_str)
-          M.hl_add_matcher(bufnr, string.format("rule%s", modeline_counter), modeline_counter, m.re, m.fg, m.bg)
+      local at_last_line = false
+      -- NOTE: if we don't use nvim_buf_call(), we
+      -- get the current position of the cursor in
+      -- the current buffer, which might be different
+      -- from the buffer we are writing to.
+      vim.api.nvim_buf_call(bufnr, function()
+        at_last_line = vim.fn.line('.') == vim.fn.line('$')
+      end)
+
+      for i,line in ipairs(data) do
+        -- when printing binary bytes, the stderr or stdout might
+        -- include \n, which is not splitted by vim. This might be
+        -- a NeoVim bug, but to be fair, nothing was printed for
+        -- those strange bytes when the command was run in the
+        -- terminal outside NeoVim.
+        data[i] = output_prefix .. string.gsub(line, "\n", "\\n")
+      end
+
+      local last_lines = vim.api.nvim_buf_get_lines(bufnr, -2, -1, false)
+      -- complete the previous line (see channel.txt)
+      local first_line = last_lines[1] .. data[1]
+
+      -- append (last item may be a partial line, until EOF)
+      local lines = vim.list_extend(
+        {first_line},
+        vim.list_slice(data, 2, #data)
+      )
+      vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, lines)
+
+      local number_of_lines = vim.api.nvim_buf_line_count(bufnr)
+      for i,_ in ipairs(lines) do
+        if fd == 2 then
+          vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_stderr", number_of_lines - #lines + i - 1, 0, -1)
+        elseif string.match(lines[i], "^shellpad: ") then
+          vim.api.nvim_buf_add_highlight(bufnr, -1, "shellpad_modeline", number_of_lines - #lines + i - 1, 0, -1)
         end
       end
+
+      -- check for lines matching "^shellpad: "
+      -- TODO: move this to vim.api.nvim_create_autocmd? But I guess this is more efficient
+      for _,line in ipairs(lines) do
+        local captured_modeline = string.match(line, "^shellpad: (.+)")
+        if captured_modeline then
+          if string.sub(captured_modeline, 1, #"highlight {") == "highlight {" then
+            modeline_counter = modeline_counter + 1
+            local matcher_yaml_std = string.sub(captured_modeline, #"highlight {")
+            local matcher_json_str = vim.fn.system("yq -o json", matcher_yaml_std)
+            local m = vim.fn.json_decode(matcher_json_str)
+            M.hl_add_matcher(bufnr, string.format("rule%s", modeline_counter), modeline_counter, m.re, m.fg, m.bg)
+          end
+        end
+      end
+
+      vim.api.nvim_buf_set_option(bufnr, 'modified', false)
+
+      if at_last_line and (follow or number_of_lines > 2) then
+        -- Only follow the output if the cursor is at the end of the buffer
+        -- this allows users to navigate the buffer without being interrupted
+        -- and follow the output again by going to the last line.
+        --
+        -- Also, only follow if the buffer has more than 2 lines, to avoid
+        -- following the output at the start by default.
+        JumpDown(bufnr)
+      end
     end
 
-    vim.api.nvim_buf_set_option(bufnr, 'modified', false)
-
-    if at_last_line and (follow or number_of_lines > 2) then
-      -- Only follow the output if the cursor is at the end of the buffer
-      -- this allows users to navigate the buffer without being interrupted
-      -- and follow the output again by going to the last line.
-      --
-      -- Also, only follow if the buffer has more than 2 lines, to avoid
-      -- following the output at the start by default.
-      JumpDown(bufnr)
+    output_sink = function(fd, data)
+      insert_output(buf, fd, data)
     end
   end
 
-  -- TODO: add a flag for not showing the banner
-  insert_output(buf, 1, {opts.banner, ""})
+  if opts.banner ~= nil then
+    output_sink(1, {opts.banner, ""})
+  end
 
   local channel_id
   channel_id = vim.fn.jobstart(shell_command, {
@@ -128,25 +146,24 @@ local genericStart = function(opts)
 
     on_stdout = function(_, data)
       if is_command_abandoned(channel_id) then return end
-      insert_output(buf, 1, data)
+      output_sink(1, data)
     end,
 
     on_stderr = function(_, data)
       if is_command_abandoned(channel_id) then return end
-      insert_output(buf, 2, data)
+      output_sink(2, data)
     end,
 
     on_exit = function(_, code)
       if is_command_abandoned(channel_id) then return end
-      local exit_lines = {
-        string.format("[Process exited with code %d]", code),
-      }
-      insert_output(buf, 1, exit_lines)
+      output_sink(1, { string.format("[Process exited with code %d]", code) })
       on_exit_cb()
     end
   })
   return channel_id
 end
+
+M.genericStart = genericStart
 
 M.setup = function(_)
   local buf_info = {}
@@ -372,6 +389,8 @@ M.setup = function(_)
     end,
     group = vim.api.nvim_create_augroup('shellpad', { clear = true }),
   })
+
+  require("shellpad.notebook").setup()
 end
 
 M.command_history = function(opts)

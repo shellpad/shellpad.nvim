@@ -23,6 +23,21 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 * Press Enter (in Normal Mode) on a line in a Shell buffer to run that line.
 * Visually select a range anywhere in the buffer and press Enter to run the selected lines as one command.
 
+## Notebook mode (beta)
+
+`:Shellpad` opens a Markdown buffer where each fenced ` ```sh ` code block is a cell. Press Enter on the input fence to run it. Press Ctrl-C anywhere in the cell, including inside the output block, to stop it. Each cell's output is written into a sibling ` ```output ` fenced block immediately below it as real buffer text, so you can move the cursor over it, yank from it, search it, and pipe it through commands like `:%!sort`. Cells run independently, so you can re-run one while others are still working.
+
+```
+:Shellpad           " open a scratch notebook with a starter cell
+:Shellpad notes.md  " open or create a notebook file
+```
+
+Notes:
+* Output blocks are part of the document. Saving the buffer writes commands and the most recent outputs to disk. Reopening a saved notebook re-attaches to existing ` ```output ` blocks, so reruns replace those bodies in place.
+* Supported fence info strings: empty, `sh`, `bash`, `shell`. Other languages are ignored.
+* Re-running a cell while it is still running stops the old job and replaces the output. Late callbacks from the stopped job are dropped so they do not leak into the new run.
+* Editing inside an output block is allowed, but the next rerun overwrites whatever is there.
+
 
 ### Syntax Highlighting (beta)
 
