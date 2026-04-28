@@ -4,9 +4,6 @@
 
 Adds the :Shell command for running shell commands without a pty in a scratch buffer.
 
-![Shellpad.nvim screenshot](https://raw.githubusercontent.com/siadat/public/master/shellpad.nvim.png)
-
-
 ## Usage
 ```
 :Shell COMMAND
@@ -31,6 +28,34 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 :Shellpad           " open a scratch notebook with a starter cell
 :Shellpad notes.md  " open or create a notebook file
 ```
+
+Example notebook file. The ` ```output ` blocks are filled in by shellpad as you press Enter on each cell, so a fresh file would just have the input cells.
+
+````markdown
+# Sample notebook
+
+Show the current date:
+
+```sh
+date -u
+```
+
+```output
+Tue Apr 28 10:40:43 PM UTC 2026
+[Process exited with code 0]
+```
+
+Print a quick greeting:
+
+```sh
+echo "hello from shellpad"
+```
+
+```output
+hello from shellpad
+[Process exited with code 0]
+```
+````
 
 Notes:
 * Output blocks are part of the document. Saving the buffer writes commands and the most recent outputs to disk. Reopening a saved notebook re-attaches to existing ` ```output ` blocks, so reruns replace those bodies in place.
