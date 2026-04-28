@@ -419,26 +419,84 @@ local setup_buffer = function(buf)
   })
 end
 
+-- Create a fresh notebook buffer (no associated file) and switch to it. If
+-- starter_lines is given, prefill the buffer with them. Returns the buffer
+-- handle. Used by :Shellpad with no path and by :Shell when invoked from a
+-- non-notebook buffer.
+M.open_new = function(starter_lines)
+  local buf = vim.api.nvim_create_buf(true, false)
+  if starter_lines and #starter_lines > 0 then
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, starter_lines)
+  end
+  vim.cmd.buffer(buf)
+  vim.api.nvim_buf_set_var(buf, 'shellpad_notebook', 1)
+  vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+  setup_buffer(buf)
+  return buf
+end
+
+-- Append a ```sh cell containing `command` at the end of `buf`, position the
+-- cursor on the new cell's command line, and run the cell. The buffer must
+-- be (or become) a notebook; setup_buffer is idempotent so it is safe to
+-- call repeatedly. Used by the :Shell user command.
+M.append_and_run = function(buf, command)
+  setup_buffer(buf)
+
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local command_body = vim.split(command, "\n", { plain = true })
+
+  local cell_lines = { "```sh" }
+  for _, l in ipairs(command_body) do table.insert(cell_lines, l) end
+  table.insert(cell_lines, "```")
+
+  local command_lnum
+  if #lines == 0 or (#lines == 1 and lines[1] == "") then
+    -- A freshly created buffer has a single empty line. Replace it so the
+    -- notebook does not start with a leading blank row.
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, cell_lines)
+    command_lnum = 2
+  else
+    -- Append after the last line. Insert a blank separator first if the
+    -- buffer ends in non-blank content so successive cells do not butt up
+    -- against each other or against a preceding output block.
+    local prefix_blank = lines[#lines] ~= ""
+    local prefix = prefix_blank and { "" } or {}
+    local payload = {}
+    for _, l in ipairs(prefix) do table.insert(payload, l) end
+    for _, l in ipairs(cell_lines) do table.insert(payload, l) end
+    vim.api.nvim_buf_set_lines(buf, #lines, #lines, false, payload)
+    -- Layout from #lines (0-indexed) is: prefix... ```sh, body..., ```
+    -- so the first body line is at row #lines + #prefix + 1 (0-indexed)
+    -- which is line #lines + #prefix + 2 (1-indexed).
+    command_lnum = #lines + #prefix + 2
+  end
+
+  vim.api.nvim_win_set_cursor(0, { command_lnum, 0 })
+
+  local cell_info = cell_at_cursor(buf, false)
+  if cell_info == nil then return end
+  local cell_id, cell = get_or_create_cell(buf, cell_info)
+  cell.command_text = cell_info.command
+  run_cell(buf, cell_id)
+end
+
 M.setup = function()
   vim.api.nvim_create_user_command("Shellpad", function(opts)
     local path = opts.fargs[1]
-    local buf
     if path and path ~= "" then
       vim.cmd.edit(vim.fn.fnameescape(path))
-      buf = vim.api.nvim_get_current_buf()
+      local buf = vim.api.nvim_get_current_buf()
+      vim.api.nvim_buf_set_var(buf, 'shellpad_notebook', 1)
+      vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+      setup_buffer(buf)
     else
-      buf = vim.api.nvim_create_buf(true, false)
-      vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+      M.open_new({
         "```sh",
         "date",
         "```",
         "",
       })
-      vim.cmd.buffer(buf)
     end
-    vim.api.nvim_buf_set_var(buf, 'shellpad_notebook', 1)
-    vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
-    setup_buffer(buf)
   end, { nargs = '?', complete = 'file' })
 end
 

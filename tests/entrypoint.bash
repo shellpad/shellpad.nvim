@@ -11,15 +11,22 @@ set -x
 trap 'echo "Test exited with code $?"' EXIT
 nvim --version
 
-# Test a slow :Shell command. Use finite producers to avoid SIGPIPE noise
-# from `yes | head` on newer coreutils where the signal is reported as
-# "Aborted (core dumped)".
+# Test a slow :Shell command. The command is now run inside a notebook
+# (a ```sh cell) and the output is written into a sibling ```output block.
+# We also test mid-stream editing of the cell's command line.
+# Use finite producers to avoid SIGPIPE noise from `yes | head` on newer
+# coreutils where the signal is reported as "Aborted (core dumped)".
 cmd='for i in 1 2 3 4 5; do echo ${i}A; done && sleep 0.5 && for i in 1 2 3 4 5; do echo ${i}B; done'
 nvim \
   +"Shell ${cmd}" \
   +'lua vim.defer_fn(function() vim.cmd.normal("A # comment") end, 500)' \
   +'lua vim.defer_fn(function() vim.cmd("w got1 | q") end, 1250)'
-echo "${cmd} # comment
+cat <<EOF > want1
+\`\`\`sh
+${cmd} # comment
+\`\`\`
+
+\`\`\`output
 1A
 2A
 3A
@@ -30,27 +37,46 @@ echo "${cmd} # comment
 3B
 4B
 5B
-[Process exited with code 0]" > want1
+[Process exited with code 0]
+\`\`\`
+EOF
 git diff --color=always --no-index want1 got1
 
-# Test a Shell://COMMAND buffer
+# Test a Shell://COMMAND invocation. Shell:// also routes through the
+# notebook flow, so the output ends up inside a ```output block.
 nvim -O \
   'Shell://echo test1' \
   +'lua vim.defer_fn(function() vim.cmd("w got2 | q") end, 750)'
-echo "echo test1
+cat <<'EOF' > want2
+```sh
+echo test1
+```
+
+```output
 test1
-[Process exited with code 0]" > want2
+[Process exited with code 0]
+```
+EOF
 git diff --color=always --no-index want2 got2
 
-# Test running a command by pressing Enter (<CR>)
+# Test editing the cell's command and re-running it via <CR>. The cursor
+# lands on the cell's command body line after the initial run, so `S` (in
+# normal mode) replaces that line and the subsequent <CR> reruns the cell.
 nvim -O \
   'Shell://echo old_value' \
   +'lua vim.defer_fn(function() vim.cmd.normal("Secho new_value") end, 500)' \
   +'lua vim.defer_fn(function() vim.cmd.normal("\r") end, 1000)' \
   +'lua vim.defer_fn(function() vim.cmd("w got3 | q") end, 1750)'
-echo "echo new_value
+cat <<'EOF' > want3
+```sh
+echo new_value
+```
+
+```output
 new_value
-[Process exited with code 0]" > want3
+[Process exited with code 0]
+```
+EOF
 git diff --color=always --no-index want3 got3
 
 TESTS_DIR="src/nvim-plugins/shellpad.nvim/tests"

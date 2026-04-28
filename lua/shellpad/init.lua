@@ -371,7 +371,18 @@ M.setup = function(_)
       -- back to the current win
       vim.api.nvim_set_current_win(curr_win)
     elseif parsed_command.action == "ACTION_START" then
-      StartShell(parsed_command)
+      -- :Shell <cmd> always produces notebook output. If the current buffer
+      -- is a notebook, append a new cell to it; otherwise create a fresh
+      -- notebook and run the command there.
+      local current_buf = vim.api.nvim_get_current_buf()
+      local notebook = require("shellpad.notebook")
+      local target_buf
+      if vim.b[current_buf].shellpad_notebook == 1 then
+        target_buf = current_buf
+      else
+        target_buf = notebook.open_new()
+      end
+      notebook.append_and_run(target_buf, parsed_command.shell_command)
     end
   end, { nargs = 1 }) -- NOTE: removed "file" because it was removing the backslashes
 

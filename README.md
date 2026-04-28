@@ -2,7 +2,7 @@
 
 [![Test Status](https://github.com/shellpad/shellpad.nvim/actions/workflows/test.yml/badge.svg)](https://github.com/shellpad/shellpad.nvim/actions/workflows/test.yml)
 
-Adds the :Shell command for running shell commands without a pty in a scratch buffer.
+Adds the :Shell command for running shell commands without a pty in a notebook-style Markdown buffer.
 
 ## Usage
 ```
@@ -12,13 +12,15 @@ Adds the :Shell command for running shell commands without a pty in a scratch bu
 :Shell --edit
 :Shell --last
 :Shell --lua {command='COMMAND', on_exit=function() end}
-:lua vim.cmd('bo sp'); vim.cmd('Shell echo left'); vim.cmd.vsplit(); vim.cmd('Shell echo right')
 ```
 * `nvim 'Shell://COMMAND'`
 * `nvim +'Shell COMMAND'`
-* Press Ctrl-C to stop the process in the current buffer.
-* Press Enter (in Normal Mode) on a line in a Shell buffer to run that line.
-* Visually select a range anywhere in the buffer and press Enter to run the selected lines as one command.
+
+`:Shell COMMAND` always produces output in a shellpad notebook. If the current buffer is already a notebook, the command is appended as a new cell in it. Otherwise a fresh notebook is opened and the command runs there.
+
+Inside a notebook:
+* Press Enter on a cell's input fence to run it.
+* Press Ctrl-C anywhere in the cell (including in the output block) to stop it.
 
 ## Notebook mode (beta)
 
