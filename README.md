@@ -37,6 +37,8 @@ Example notebook file. The ` ```output ` blocks are filled in by shellpad as you
 Show the current date:
 
 ```sh
+# Move cursor inside the code blocks
+# and press Enter to execute the command.
 date -u
 ```
 
