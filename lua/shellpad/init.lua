@@ -16,11 +16,28 @@ local JumpDown = function(bufnr)
   end)
 end
 
+-- opts.is_command_abandoned (optional): function(channel_id) -> bool
+--   Lets the caller disown a previously started command (identified by its
+--   channel_id) after it has been stopped. The buffer and window are not
+--   what gets abandoned, only the command running inside the buffer.
+--
+--   When the same buffer is reused for a new command, the previous command
+--   is jobstop'd but its on_stdout / on_stderr / on_exit callbacks still
+--   fire asynchronously on the main loop. Without this gate, those late
+--   callbacks would write stale output (and a spurious "[Process exited]"
+--   line) into the buffer that now belongs to the new command. Returning
+--   true for the old channel_id tells genericStart to silently drop those
+--   callbacks.
+--
+--   StopShell (Ctrl-C, BufHidden) deliberately does NOT mark the command
+--   as abandoned, so the "[Process exited]" message still appears when the
+--   user stops a command manually.
 local genericStart = function(opts)
   local shell_command = opts.shell_command
   local buf = opts.buf
   local follow = opts.follow
   local on_exit_cb = opts.on_exit
+  local is_command_abandoned = opts.is_command_abandoned or function() return false end
 
   local output_prefix = ""
   M.hl_clear_matchers(buf, "shellpad")
@@ -102,21 +119,25 @@ local genericStart = function(opts)
   -- TODO: add a flag for not showing the banner
   insert_output(buf, 1, {opts.banner, ""})
 
-  return vim.fn.jobstart(shell_command, {
+  local channel_id
+  channel_id = vim.fn.jobstart(shell_command, {
     pty = false,
     detach = false,
     stdout_buffered = false,
     stderr_buffered = false,
 
     on_stdout = function(_, data)
+      if is_command_abandoned(channel_id) then return end
       insert_output(buf, 1, data)
     end,
 
     on_stderr = function(_, data)
+      if is_command_abandoned(channel_id) then return end
       insert_output(buf, 2, data)
     end,
 
     on_exit = function(_, code)
+      if is_command_abandoned(channel_id) then return end
       local exit_lines = {
         string.format("[Process exited with code %d]", code),
       }
@@ -124,12 +145,20 @@ local genericStart = function(opts)
       on_exit_cb()
     end
   })
+  return channel_id
 end
 
 M.setup = function(_)
   local buf_info = {}
   local last_win = nil
   local last_buf = nil
+
+  local commandline_hl_ns = vim.api.nvim_create_namespace('shellpad_commandline')
+
+  local highlight_basics = function(bfr)
+    vim.api.nvim_buf_clear_namespace(bfr, commandline_hl_ns, 0, 1)
+    vim.api.nvim_buf_add_highlight(bfr, commandline_hl_ns, "shellpad_commandline", 0, 0, -1)
+  end
 
   local StopShell = function(buf)
     local channel_id = buf_info[buf].channel_id
@@ -141,10 +170,30 @@ M.setup = function(_)
   end
 
   local StartShell = function(parsed_command)
-      -- create new buffer
-      local buf = vim.api.nvim_create_buf(false, true)
-      vim.cmd.buffer(buf)
-      vim.cmd.setlocal("number")
+      local current_buf = vim.api.nvim_get_current_buf()
+      local reuse = buf_info[current_buf] ~= nil
+      local buf
+
+      if reuse then
+        buf = current_buf
+        -- We are about to overwrite this buffer with a new command. The
+        -- previous command's callbacks may still fire after jobstop (they
+        -- run on the main loop, not synchronously), so we record its
+        -- channel_id in abandoned_commands. genericStart's
+        -- is_command_abandoned check then drops any late
+        -- stdout/stderr/exit from that command instead of letting it
+        -- pollute the new buffer state.
+        if buf_info[buf].channel_id ~= nil then
+          buf_info[buf].abandoned_commands[buf_info[buf].channel_id] = true
+          vim.fn.jobstop(buf_info[buf].channel_id)
+          buf_info[buf].channel_id = nil
+        end
+        vim.api.nvim_buf_set_lines(buf, 0, -1, false, {})
+      else
+        buf = vim.api.nvim_create_buf(false, true)
+        vim.cmd.buffer(buf)
+        vim.cmd.setlocal("number")
+      end
       last_win = vim.api.nvim_get_current_win()
       last_buf = buf
 
@@ -162,6 +211,12 @@ M.setup = function(_)
 
       vim.fn.writefile({parsed_command.shell_command}, tmpfile, "a")
 
+      if not reuse then
+        buf_info[buf] = {
+          abandoned_commands = {},
+        }
+      end
+
       local channel_id = genericStart({
         follow = parsed_command.follow,
         shell_command = string.format([[
@@ -175,65 +230,72 @@ M.setup = function(_)
         ]], tmpfile),
         banner = parsed_command.full_command,
         on_exit = function()
-          buf_info[buf].channel_id = nil
+          if buf_info[buf] ~= nil then
+            buf_info[buf].channel_id = nil
+          end
           parsed_command.on_exit()
+        end,
+        is_command_abandoned = function(cid)
+          return buf_info[buf] ~= nil and buf_info[buf].abandoned_commands[cid] == true
         end,
         buf = buf,
       })
 
-      buf_info[buf] = {
-        channel_id = channel_id,
-        full_command = parsed_command.full_command,
-        shell_command = parsed_command.shell_command,
-      }
-      vim.api.nvim_create_autocmd({"BufHidden"}, {
-        buffer = buf,
-        callback = function()
-          StopShell(buf)
-        end,
-      })
-
-      local commandline_hl_ns = vim.api.nvim_create_namespace('shellpad_commandline')
-
-      local highlight_basics = function(bfr)
-        vim.api.nvim_buf_clear_namespace(bfr, commandline_hl_ns, 0, 1)
-        vim.api.nvim_buf_add_highlight(bfr, commandline_hl_ns, "shellpad_commandline", 0, 0, -1)
-      end
+      buf_info[buf].channel_id = channel_id
+      buf_info[buf].full_command = parsed_command.full_command
+      buf_info[buf].shell_command = parsed_command.shell_command
 
       highlight_basics(buf)
-      vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI"}, {
-        buffer = buf,
-        callback = function()
-          highlight_basics(buf)
-        end,
-      })
 
-      vim.keymap.set('n', '<C-c>', function() StopShell(buf) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
-      vim.keymap.set('n', '<CR>', function()
-        -- get current line:
-        local line = vim.api.nvim_get_current_line()
-        if line == "" then
-          return
-        end
-        -- if it is not the first line, return
-        if vim.fn.line('.') ~= 1 then
-          return
-        end
-        -- Start a new shell with the current line as the command
-        local command = string.format("Shell %s", line)
-        vim.cmd(command)
-        vim.fn.histadd("cmd", command)
-      end, { noremap = true, desc = "shellpad.nvim: Run command in current line", buffer = buf })
+      if not reuse then
+        vim.api.nvim_create_autocmd({"BufHidden"}, {
+          buffer = buf,
+          callback = function()
+            StopShell(buf)
+          end,
+        })
 
-      vim.keymap.set('v', '<CR>', function()
-        vim.cmd('normal! "vy') -- Yank selection into the "v register
-        local full_command = vim.fn.getreg('v')
-        full_command = string.gsub(full_command, "\n", " ")
+        vim.api.nvim_create_autocmd({"BufWipeout"}, {
+          buffer = buf,
+          callback = function()
+            buf_info[buf] = nil
+          end,
+        })
 
-        local command = string.format("Shell %s", full_command)
-        vim.cmd(command)
-        vim.fn.histadd("cmd", command)
-      end, { noremap = true, desc = "shellpad.nvim: Run command visually selected", buffer = buf })
+        vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI"}, {
+          buffer = buf,
+          callback = function()
+            highlight_basics(buf)
+          end,
+        })
+
+        vim.keymap.set('n', '<C-c>', function() StopShell(buf) end, { noremap = true, desc = "shellpad.nvim: Stop process", buffer = buf })
+        vim.keymap.set('n', '<CR>', function()
+          -- get current line:
+          local line = vim.api.nvim_get_current_line()
+          if line == "" then
+            return
+          end
+          -- if it is not the first line, return
+          if vim.fn.line('.') ~= 1 then
+            return
+          end
+          -- Start a new shell with the current line as the command
+          local command = string.format("Shell %s", line)
+          vim.cmd(command)
+          vim.fn.histadd("cmd", command)
+        end, { noremap = true, desc = "shellpad.nvim: Run command in current line", buffer = buf })
+
+        vim.keymap.set('v', '<CR>', function()
+          vim.cmd('normal! "vy') -- Yank selection into the "v register
+          local full_command = vim.fn.getreg('v')
+          full_command = string.gsub(full_command, "\n", " ")
+
+          local command = string.format("Shell %s", full_command)
+          vim.cmd(command)
+          vim.fn.histadd("cmd", command)
+        end, { noremap = true, desc = "shellpad.nvim: Run command visually selected", buffer = buf })
+      end
   end
 
   local ParseCommand = function(full_command)
