@@ -64,9 +64,31 @@ end
 
 M.genericStart = genericStart
 
+-- Returns the plugin's short git commit hash (e.g. "6481b37"), or "unknown"
+-- if shellpad was not installed from a git checkout.
+M.version = function()
+  -- This file is at <plugin_root>/lua/shellpad/init.lua, so the plugin root
+  -- is three filename components up.
+  local source = debug.getinfo(1, 'S').source
+  local path = source:sub(2)  -- strip leading "@"
+  local plugin_dir = vim.fn.fnamemodify(path, ":h:h:h")
+
+  local out = vim.fn.systemlist({ "git", "-C", plugin_dir, "rev-parse", "--short", "HEAD" })
+  if vim.v.shell_error == 0 and out[1] and out[1] ~= "" then
+    return out[1]
+  end
+  return "unknown"
+end
+
 M.setup = function(_)
   vim.api.nvim_create_user_command("Shell", function(opts)
     local command = opts.fargs[1]
+
+    if command == "--version" then
+      print("shellpad.nvim " .. M.version())
+      return
+    end
+
     local current_buf = vim.api.nvim_get_current_buf()
     local notebook = require("shellpad.notebook")
     local target_buf
