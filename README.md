@@ -7,11 +7,6 @@ Adds the :Shell command for running shell commands without a pty in a notebook-s
 ## Usage
 ```
 :Shell COMMAND
-:Shell --follow COMMAND
-:Shell --stop
-:Shell --edit
-:Shell --last
-:Shell --lua {command='COMMAND', on_exit=function() end}
 ```
 * `nvim 'Shell://COMMAND'`
 * `nvim +'Shell COMMAND'`
@@ -68,21 +63,6 @@ Notes:
 * Editing inside an output block is allowed, but the next rerun overwrites whatever is there.
 
 
-### Syntax Highlighting (beta)
-
-You can highlight parts of the output of the command if the output of the command a line that matches the following example:
-```
-shellpad: highlight {re: "...", fg: "...", bg: "..."}
-```
-
-For example, running `:Shell make test-highlight` will highlight all IP addresses in the output of the ping command:
-```
-test-highlight:
-	@echo 'shellpad: highlight {re: "\\(\\d\\+\\.\\)\\{3\\}\\d\\+", fg: "#66aa66", bg: "NONE"}'
-	ping -c 3 -i 0.1 8.8.8.8
-```
-
-
 ## Examples Usages
 Search for files using rg:
 ```
@@ -103,11 +83,6 @@ Run a long running command:
 Tail a log file:
 ```
 :Shell tail --lines=0 -F ~/.local/state/nvim/log
-```
-
-Run a NeoVim Lua function after the command is completed:
-```
-:Shell --lua {command="ping -c3 localhost", on_exit=function() vim.cmd.normal("ggn") end}
 ```
 
 Hint: In the rg example, you can press gF to jump to the file under the cursor. See :help gF.

@@ -319,14 +319,12 @@ local run_cell = function(buf, cell_id)
 
   local genericStart = require("shellpad").genericStart
   local channel_id = genericStart({
-    follow = false,
     shell_command = string.format([[
     . %s
     EXIT_CODE=$?
     sleep 0.5s
     exit $EXIT_CODE
     ]], tmpfile),
-    banner = nil,
     on_exit = function()
       if state.cells[cell_id] ~= nil then
         state.cells[cell_id].channel_id = nil
@@ -342,7 +340,6 @@ local run_cell = function(buf, cell_id)
       append_output(current, data)
       schedule_render(buf, cell_id)
     end,
-    buf = buf,
   })
 
   cell.channel_id = channel_id
