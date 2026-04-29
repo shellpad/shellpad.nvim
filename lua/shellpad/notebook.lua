@@ -138,6 +138,19 @@ local get_or_create_cell = function(buf, cell_info)
     return existing_id, existing_cell
   end
 
+  -- Recover from a missing state table. We have seen this happen when the
+  -- buffer's <CR> keymap is still bound but notebook_buf_info[buf] is gone
+  -- (e.g. the BufWipeout autocmd cleared state but the buffer survived, or
+  -- the buffer was reloaded by some external mechanism). Without this
+  -- guard the next line would crash with "attempt to index local 'state'".
+  if notebook_buf_info[buf] == nil then
+    notebook_buf_info[buf] = {
+      cells = {},
+      fence_extmark_to_cell = {},
+      next_cell_id = 1,
+    }
+  end
+
   local state = notebook_buf_info[buf]
   local cell_id = state.next_cell_id
   state.next_cell_id = cell_id + 1
