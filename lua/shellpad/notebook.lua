@@ -434,7 +434,10 @@ end
 -- handle. Used by :Shellpad with no path and by :Shell when invoked from a
 -- non-notebook buffer.
 M.open_new = function(starter_lines)
-  local buf = vim.api.nvim_create_buf(true, false)
+  -- scratch=true sets buftype=nofile, bufhidden=hide, swapfile=off so the
+  -- buffer is throwaway: no "save changes?" prompt on close. The user can
+  -- still persist it explicitly with `:w path` or `:saveas path`.
+  local buf = vim.api.nvim_create_buf(true, true)
   if starter_lines and #starter_lines > 0 then
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, starter_lines)
   end
